@@ -40,58 +40,42 @@ public:
     }
 
     //Transform functions
-    FastMat Transform(const std::function<T(const T &)> &Func) const
+    template <bool CORDS_PARAMS_FLAG = true>
+    constexpr FastMat Transform(const auto &Func) const
     {
         FastMat res;
         for (size_t i = 0; i < H; ++i)
         {
             for (size_t j = 0; j < W; ++j)
             {
-                res.members[i][j] = Func(this->At(j, i));
-            }
-        }
-        return res;
-    }
-    template <typename ConstexprFunc>
-    constexpr FastMat Transform(const ConstexprFunc &Func, bool CORD_PARAMS = false) const
-    {
-        FastMat res;
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                if (CORD_PARAMS)
+                if constexpr (CORDS_PARAMS_FLAG)
+                {
                     res.members[i][j] = Func(this->At(j, i), j, i);
+                }
                 else
+                {
                     res.members[i][j] = Func(this->At(j, i));
+                }
             }
         }
         return res;
     }
-    FastMat Transform(std::function<T(const T &, const T &)> Func, const FastMat &mat) const
+    template <bool CORDS_PARAMS_FLAG = false>
+    constexpr FastMat Transform(const auto &Func, const FastMat &mat) const
     {
         FastMat res;
         for (size_t i = 0; i < H; ++i)
         {
             for (size_t j = 0; j < W; ++j)
             {
-                res.members[i][j] = Func(this->At(j, i), mat.At(j, i));
-            }
-        }
-        return res;
-    }
-    template <typename ConstexprFunc>
-    constexpr FastMat Transform(const ConstexprFunc &Func, const FastMat &mat, bool CORD_PARAMS = false) const
-    {
-        FastMat res;
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                if (CORD_PARAMS)
-                    res.members[i][j] = Func(this->At(j, i), j, i);
+                if constexpr (CORDS_PARAMS_FLAG)
+                {
+                    res.members[i][j] = Func(this->At(j, i), mat.At(j, i), j, i);
+                }
                 else
-                    res.members[i][j] = Func(this->At(j, i));
+                {
+                    res.members[i][j] = Func(this->At(j, i), mat.At(j, i));
+                }
             }
         }
         return res;
@@ -122,16 +106,6 @@ public:
     }
 
     //ApplyFunction function
-    void ApplyFunction(const std::function<void(T &)> &Func)
-    {
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                this->At(i, j) = Func(this->At(j, i));
-            }
-        }
-    }
     void ApplyFunction(const std::function<void(T &, size_t, size_t)> &Func)
     {
         for (size_t i = 0; i < H; ++i)
@@ -139,6 +113,24 @@ public:
             for (size_t j = 0; j < W; ++j)
             {
                 this->At(i, j) = Func(this->At(j, i), j, i);
+            }
+        }
+    }
+    template <bool CORD_PARAMS = false>
+    constexpr void ApplyFunction(const auto &Func)
+    {
+        for (size_t i = 0; i < H; ++i)
+        {
+            for (size_t j = 0; j < W; ++j)
+            {
+                if constexpr (CORD_PARAMS)
+                {
+                    Func(this->At(j, i), j, i);
+                }
+                else
+                {
+                    Func(this->At(j, i));
+                }
             }
         }
     }
