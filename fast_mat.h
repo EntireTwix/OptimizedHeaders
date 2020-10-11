@@ -1,5 +1,4 @@
 #include <stdexcept>
-#include <memory>
 
 template <size_t W, size_t H, typename T>
 class FastMat
