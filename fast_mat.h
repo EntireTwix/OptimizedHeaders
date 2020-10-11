@@ -80,42 +80,8 @@ public:
         }
         return res;
     }
-    FastMat Transform(const std::function<T(const T &, size_t, size_t)> &Func) const
-    {
-        FastMat res;
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                res.members[i][j] = Func(this->At(j, i), j, i);
-            }
-        }
-        return res;
-    }
-    FastMat Transform(std::function<T(const T &, const T &, size_t, size_t)> Func, const FastMat &mat) const
-    {
-        FastMat res;
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                res.members[i][j] = Func(this->At(j, i), mat.At(j, i), j, i);
-            }
-        }
-        return res;
-    }
 
     //ApplyFunction function
-    void ApplyFunction(const std::function<void(T &, size_t, size_t)> &Func)
-    {
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                this->At(i, j) = Func(this->At(j, i), j, i);
-            }
-        }
-    }
     template <bool CORDS_PARAMS_FLAG = false>
     constexpr void ApplyFunction(const auto &Func)
     {
