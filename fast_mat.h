@@ -1,5 +1,4 @@
 #include <stdexcept>
-#include <functional>
 #include <memory>
 
 template <size_t W, size_t H, typename T>
@@ -96,6 +95,24 @@ public:
                 else
                 {
                     Func(this->At(j, i));
+                }
+            }
+        }
+    }
+    template <bool CORDS_PARAMS_FLAG = false>
+    constexpr void ApplyFunction(const auto &Func, const FastMat &mat)
+    {
+        for (size_t i = 0; i < H; ++i)
+        {
+            for (size_t j = 0; j < W; ++j)
+            {
+                if constexpr (CORDS_PARAMS_FLAG)
+                {
+                    Func(this->At(j, i), mat.At(j, i), j, i);
+                }
+                else
+                {
+                    Func(this->At(j, i), mat.At(j, i));
                 }
             }
         }
