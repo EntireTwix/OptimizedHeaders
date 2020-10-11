@@ -116,14 +116,14 @@ public:
             }
         }
     }
-    template <bool CORD_PARAMS = false>
+    template <bool CORDS_PARAMS_FLAG = false>
     constexpr void ApplyFunction(const auto &Func)
     {
         for (size_t i = 0; i < H; ++i)
         {
             for (size_t j = 0; j < W; ++j)
             {
-                if constexpr (CORD_PARAMS)
+                if constexpr (CORDS_PARAMS_FLAG)
                 {
                     Func(this->At(j, i), j, i);
                 }
