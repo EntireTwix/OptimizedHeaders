@@ -48,11 +48,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    res.members[i][j] = Func(this->At(j, i), j, i);
+                    res.members[i][j] = Func(this->members[i][j], j, i);
                 }
                 else
                 {
-                    res.members[i][j] = Func(this->At(j, i));
+                    res.members[i][j] = Func(this->members[i][j]);
                 }
             }
         }
@@ -68,11 +68,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    res.members[i][j] = Func(this->At(j, i), mat.At(j, i), j, i);
+                    res.members[i][j] = Func(this->members[i][j], mat.members[i][j], j, i);
                 }
                 else
                 {
-                    res.members[i][j] = Func(this->At(j, i), mat.At(j, i));
+                    res.members[i][j] = Func(this->members[i][j], mat.members[i][j]);
                 }
             }
         }
@@ -89,11 +89,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    Func(this->At(j, i), j, i);
+                    Func(this->members[i][j], j, i);
                 }
                 else
                 {
-                    Func(this->At(j, i));
+                    Func(this->members[i][j]);
                 }
             }
         }
@@ -107,11 +107,11 @@ public:
             {
                 if constexpr (CORDS_PARAMS_FLAG)
                 {
-                    Func(this->At(j, i), mat.At(j, i), j, i);
+                    Func(this->members[i][j], mat.members[i][j], j, i);
                 }
                 else
                 {
-                    Func(this->At(j, i), mat.At(j, i));
+                    Func(this->members[i][j], mat.members[i][j]);
                 }
             }
         }
