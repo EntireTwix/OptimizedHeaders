@@ -38,7 +38,7 @@ public:
     }
 
     //Transform functions
-    template <bool CORDS_PARAMS_FLAG = true>
+    template <bool CORDS_PARAMS_FLAG = false>
     constexpr FastMat Transform(const auto &Func) const
     {
         FastMat res;
