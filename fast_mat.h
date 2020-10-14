@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-template <size_t W, size_t H, typename T>
+template <typename T, size_t W, size_t H>
 class FastMat
 {
 private:
