@@ -8,7 +8,7 @@ class Mat
 {
 private:
     Type *members = nullptr;
-    size_t sizeY = 0, sizeX = 0;
+    size_t sizeY = 0, sizeX = 0, area = 0;
 
 public:
     using type = Type;
@@ -17,7 +17,7 @@ public:
     explicit Mat(size_t x, size_t y);
 
     template <typename... Params>
-    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h)
+    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h), area(w * h)
     {
         if (sizeof...(membs) != (w * h))
             throw std::invalid_argument("dimensions of matrix must match number of values");
@@ -39,10 +39,14 @@ public:
 
     Mat Dot(const Mat &mat) const;
 
-    Mat operator+(const Mat &mat) const;
-    Mat operator-(const Mat &mat) const;
-    Mat operator*(const Mat &mat) const;
-    Mat operator/(const Mat &mat) const;
+    Mat operator+(const Mat &) const;
+    Mat operator+(const Type &) const;
+    Mat operator-(const Mat &) const;
+    Mat operator-(const Type &) const;
+    Mat operator*(const Mat &) const;
+    Mat operator*(const Type &) const;
+    Mat operator/(const Mat &) const;
+    Mat operator/(const Type &) const;
 
     Type *begin()
     {
@@ -177,6 +181,7 @@ inline Mat<Type>::Mat(const Mat<Type> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
+    area = mat.area;
     members = new Type[sizeX * sizeY]{Type()};
 
     for (size_t i = 0; i < sizeY; ++i)
@@ -193,9 +198,10 @@ inline Mat<Type>::Mat(Mat<Type> &&mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
+    area = mat.area;
     members = mat.members;
     mat.members = nullptr;
-    mat.sizeX = mat.sizeY = 0;
+    mat.sizeX = mat.sizeY = mat.area = 0;
 }
 
 template <typename Type>
@@ -203,6 +209,7 @@ inline Mat<Type> Mat<Type>::operator=(const Mat<Type> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
+    area = mat.area;
     members = new Type[sizeX * sizeY];
     for (size_t i = 0; i < sizeY; ++i)
     {
@@ -219,9 +226,10 @@ inline Mat<Type> Mat<Type>::operator=(Mat<Type> &&mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
+    area = mat.area;
     members = mat.members;
     mat.members = nullptr;
-    mat.sizeX = mat.sizeY = 0;
+    mat.sizeX = mat.sizeY = mat.area = 0;
     return *this;
 }
 
@@ -264,7 +272,7 @@ inline size_t Mat<Type>::SizeY() const
 template <typename Type>
 inline size_t Mat<Type>::Area() const
 {
-    return sizeY * sizeX;
+    return area;
 }
 
 template <typename Type>
@@ -272,16 +280,15 @@ inline Mat<Type> Mat<Type>::Dot(const Mat<Type> &mat) const
 {
     if ((sizeX != mat.sizeY) || (mat.sizeX != sizeY))
         throw std::invalid_argument("Dot: dimensions invalid");
-    Mat res(mat.sizeX, sizeY); //product dimensions are the x of both mats
-    Type amount;
+    Mat res(mat.sizeX, sizeY);         //product dimensions are the x of both mats
     for (size_t i = 0; i < sizeY; ++i) //for each y on the A matrix
     {
         for (size_t j = 0; j < mat.sizeX; ++j) //for each x on the B matrix
         {
-            amount = 0;
             for (int k = 0; k < sizeX; ++k) //is equivelant to mat.sizeY()
-                amount += At(k, i) * mat.At(j, k);
-            res.At(j, i) = amount;
+            {
+                res.At(j, i) += At(k, i) * mat.At(j, k);
+            }
         }
     }
     return res;
@@ -292,10 +299,21 @@ inline Mat<Type> Mat<Type>::operator+(const Mat<Type> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator+: parameter must match the dimensions of this");
-    Mat res(sizeX, sizeY); //product dimensions are the x of both mats
-    for (size_t i = 0; i < Area(); ++i)
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] + mat.members[i];
+    }
+    return res;
+}
+
+template <typename Type>
+inline Mat<Type> Mat<Type>::operator+(const Type &value) const
+{
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
+    {
+        res.members[i] = this->members[i] + value;
     }
     return res;
 }
@@ -305,10 +323,21 @@ inline Mat<Type> Mat<Type>::operator-(const Mat<Type> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator-: parameter must match the dimensions of this");
-    Mat res(sizeX, sizeY); //product dimensions are the x of both mats
-    for (size_t i = 0; i < Area(); ++i)
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] - mat.members[i];
+    }
+    return res;
+}
+
+template <typename Type>
+inline Mat<Type> Mat<Type>::operator-(const Type &value) const
+{
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
+    {
+        res.members[i] = this->members[i] - value;
     }
     return res;
 }
@@ -318,10 +347,21 @@ inline Mat<Type> Mat<Type>::operator*(const Mat<Type> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator*: parameter must match the dimensions of this");
-    Mat res(sizeX, sizeY); //product dimensions are the x of both mats
-    for (size_t i = 0; i < Area(); ++i)
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] * mat.members[i];
+    }
+    return res;
+}
+
+template <typename Type>
+inline Mat<Type> Mat<Type>::operator*(const Type &value) const
+{
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
+    {
+        res.members[i] = this->members[i] * value;
     }
     return res;
 }
@@ -331,10 +371,21 @@ inline Mat<Type> Mat<Type>::operator/(const Mat<Type> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator/: parameter must match the dimensions of this");
-    Mat res(sizeX, sizeY); //product dimensions are the x of both mats
-    for (size_t i = 0; i < Area(); ++i)
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
     {
-        res.members[i] = this->members[i] + mat.members[i];
+        res.members[i] = this->members[i] / mat.members[i];
+    }
+    return res;
+}
+
+template <typename Type>
+inline Mat<Type> Mat<Type>::operator/(const Type &value) const
+{
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
+    {
+        res.members[i] = this->members[i] / value;
     }
     return res;
 }
