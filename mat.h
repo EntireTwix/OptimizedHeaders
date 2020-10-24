@@ -41,23 +41,23 @@ public:
 
     Mat operator+(const Mat &) const;
     Mat operator+(const Type &) const;
-    void operator+=(const Mat &);
-    void operator+=(const Type &);
+    Mat operator+=(const Mat &);
+    Mat operator+=(const Type &);
 
     Mat operator-(const Mat &) const;
     Mat operator-(const Type &) const;
-    void operator-=(const Mat &);
-    void operator-=(const Type &);
+    Mat operator-=(const Mat &);
+    Mat operator-=(const Type &);
 
     Mat operator*(const Mat &) const;
     Mat operator*(const Type &) const;
-    void operator*=(const Mat &);
-    void operator*=(const Type &);
+    Mat operator*=(const Mat &);
+    Mat operator*=(const Type &);
 
     Mat operator/(const Mat &) const;
     Mat operator/(const Type &) const;
-    void operator/=(const Mat &);
-    void operator/=(const Type &);
+    Mat operator/=(const Mat &);
+    Mat operator/=(const Type &);
 
     Type *begin()
     {
@@ -182,7 +182,7 @@ public:
 };
 
 template <typename Type>
-inline Mat<Type>::Mat(size_t x, size_t y) : sizeX(x), sizeY(y)
+inline Mat<Type>::Mat(size_t w, size_t h) : sizeX(w), sizeY(h), area(w * h)
 {
     members = new Type[sizeX * sizeY]{Type()};
 }
@@ -330,7 +330,7 @@ inline Mat<Type> Mat<Type>::operator+(const Type &value) const
 }
 
 template <typename Type>
-inline void Mat<Type>::operator+=(const Mat<Type> &mat)
+inline Mat<Type> Mat<Type>::operator+=(const Mat<Type> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator+=: parameter must match the dimensions of this");
@@ -341,12 +341,13 @@ inline void Mat<Type>::operator+=(const Mat<Type> &mat)
 }
 
 template <typename Type>
-inline void Mat<Type>::operator+=(const Type &value)
+inline Mat<Type> Mat<Type>::operator+=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
     {
         this->members[i] += value;
     }
+    return *this;
 }
 
 template <typename Type>
@@ -374,7 +375,7 @@ inline Mat<Type> Mat<Type>::operator-(const Type &value) const
 }
 
 template <typename Type>
-inline void Mat<Type>::operator-=(const Mat<Type> &mat)
+inline Mat<Type> Mat<Type>::operator-=(const Mat<Type> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator-=: parameter must match the dimensions of this");
@@ -382,15 +383,17 @@ inline void Mat<Type>::operator-=(const Mat<Type> &mat)
     {
         this->members[i] -= mat.members[i];
     }
+    return *this;
 }
 
 template <typename Type>
-inline void Mat<Type>::operator-=(const Type &value)
+inline Mat<Type> Mat<Type>::operator-=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
     {
         this->members[i] -= value;
     }
+    return *this;
 }
 
 template <typename Type>
@@ -418,7 +421,7 @@ inline Mat<Type> Mat<Type>::operator*(const Type &value) const
 }
 
 template <typename Type>
-inline void Mat<Type>::operator*=(const Mat<Type> &mat)
+inline Mat<Type> Mat<Type>::operator*=(const Mat<Type> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator*=: parameter must match the dimensions of this");
@@ -426,15 +429,17 @@ inline void Mat<Type>::operator*=(const Mat<Type> &mat)
     {
         this->members[i] *= mat.members[i];
     }
+    return *this;
 }
 
 template <typename Type>
-inline void Mat<Type>::operator*=(const Type &value)
+inline Mat<Type> Mat<Type>::operator*=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
     {
         this->members[i] *= value;
     }
+    return *this;
 }
 
 template <typename Type>
@@ -462,7 +467,7 @@ inline Mat<Type> Mat<Type>::operator/(const Type &value) const
 }
 
 template <typename Type>
-inline void Mat<Type>::operator/=(const Mat<Type> &mat)
+inline Mat<Type> Mat<Type>::operator/=(const Mat<Type> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator/=: parameter must match the dimensions of this");
@@ -470,15 +475,17 @@ inline void Mat<Type>::operator/=(const Mat<Type> &mat)
     {
         this->members[i] /= mat.members[i];
     }
+    return *this;
 }
 
 template <typename Type>
-inline void Mat<Type>::operator/=(const Type &value)
+inline Mat<Type> Mat<Type>::operator/=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
     {
         this->members[i] /= value;
     }
+    return *this;
 }
 
 template <typename Type>
