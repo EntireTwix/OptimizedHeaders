@@ -15,9 +15,7 @@ public:
 
     Mat() = default;
     explicit Mat(size_t x, size_t y);
-
-    template <typename... Params>
-    explicit Mat(size_t w, size_t h, Params... membs) : sizeX(w), sizeY(h), area(w * h)
+    explicit Mat(size_t w, size_t h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
     {
         if (sizeof...(membs) != (w * h))
             throw std::invalid_argument("dimensions of matrix must match number of values");
