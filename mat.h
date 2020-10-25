@@ -14,7 +14,7 @@ public:
     using type = Type;
 
     Mat() = default;
-    explicit Mat(size_t x, size_t y);
+    explicit Mat(size_t, size_t);
     explicit Mat(size_t w, size_t h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
     {
         if (sizeof...(membs) != (w * h))
@@ -22,20 +22,22 @@ public:
         members = new Type[w * h]{membs...};
     }
 
-    Mat(const Mat &mat);
-    Mat(Mat &&mat);
-    Mat operator=(const Mat &mat);
-    Mat operator=(Mat &&mat);
+    Mat(const Mat &);
+    Mat(Mat &&);
+    Mat operator=(const Mat &);
+    Mat operator=(Mat &&);
 
-    Type &At(size_t x, size_t y);
-    Type *AtP(size_t x, size_t y);
-    Type At(size_t x, size_t y) const;
+    Type &At(size_t, size_t);
+    Type *AtP(size_t, size_t);
+    Type At(size_t, size_t) const;
+    Type &FastAt(size_t);
+    Type FastAt(size_t) const;
 
     size_t SizeX() const;
     size_t SizeY() const;
     size_t Area() const;
 
-    Mat Dot(const Mat &mat) const;
+    Mat Dot(const Mat &) const;
 
     Mat operator+(const Mat &) const;
     Mat operator+(const Type &) const;
@@ -97,8 +99,8 @@ public:
     }
 
     //Transform functions
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const Function &Func) const
+    template <bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const auto &Func) const
     {
         Mat res(sizeX, sizeY);
         for (size_t i = 0; i < sizeY; ++i)
@@ -117,8 +119,8 @@ public:
         }
         return res;
     }
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const Function &Func, const Mat &mat) const
+    template <bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const auto &Func, const Mat &mat) const
     {
         Mat res(sizeX, sizeY);
         for (size_t i = 0; i < sizeY; ++i)
@@ -139,8 +141,8 @@ public:
     }
 
     //ApplyFunction function
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const Function &Func)
+    template <bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const auto &Func)
     {
         for (size_t i = 0; i < sizeY; ++i)
         {
@@ -157,8 +159,8 @@ public:
             }
         }
     }
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const Function &Func, const Mat &mat)
+    template <bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const auto &Func, const Mat &mat)
     {
         for (size_t i = 0; i < sizeY; ++i)
         {
@@ -267,6 +269,22 @@ inline Type Mat<Type>::At(size_t x, size_t y) const //indexing matrix
 }
 
 template <typename Type>
+inline Type &Mat<Type>::FastAt(size_t index)
+{
+    if (index >= area)
+        throw std::out_of_range("FastAt: index out of range");
+    return members[index];
+}
+
+template <typename Type>
+inline Type Mat<Type>::FastAt(size_t index) const
+{
+    if (index >= area)
+        throw std::out_of_range("FastAt: index out of range");
+    return members[index];
+}
+
+template <typename Type>
 inline size_t Mat<Type>::SizeX() const
 {
     return sizeX;
@@ -289,6 +307,7 @@ inline Mat<Type> Mat<Type>::Dot(const Mat<Type> &mat) const
 {
     if (sizeX != mat.sizeY)
         throw std::invalid_argument("Dot: dimensions invalid");
+
     Mat res(mat.sizeX, sizeY);         //product dimensions are the x of both mats
     for (size_t i = 0; i < sizeY; ++i) //for each y on the A matrix
     {
