@@ -287,7 +287,7 @@ inline size_t Mat<Type>::Area() const
 template <typename Type>
 inline Mat<Type> Mat<Type>::Dot(const Mat<Type> &mat) const
 {
-    if ((sizeX != mat.sizeY) || (mat.sizeX != sizeY))
+    if (sizeX != mat.sizeY)
         throw std::invalid_argument("Dot: dimensions invalid");
     Mat res(mat.sizeX, sizeY);         //product dimensions are the x of both mats
     for (size_t i = 0; i < sizeY; ++i) //for each y on the A matrix
