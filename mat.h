@@ -16,12 +16,7 @@ public:
 
     Mat() = default;
     explicit Mat(SizeT, SizeT);
-    explicit Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
-    {
-        if (sizeof...(membs) != (w * h))
-            throw std::invalid_argument("dimensions of matrix must match number of values");
-        members = new Type[w * h]{membs...};
-    }
+    explicit Mat(SizeT, SizeT, auto &&...);
 
     Mat(const Mat &);
     Mat(Mat &&);
@@ -62,14 +57,8 @@ public:
     Mat operator/=(const Mat &);
     Mat operator/=(const Type &);
 
-    Type *begin()
-    {
-        return &members[0];
-    }
-    Type *end()
-    {
-        return &members[sizeX * sizeY];
-    }
+    Type *begin() { return &members[0]; }
+    Type *end() { return &members[area]; }
 
     friend std::ostream &operator<<(std::ostream &os, const Mat &mat)
     {
@@ -187,17 +176,22 @@ public:
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 {
-    members = new Type[sizeX * sizeY]{Type()};
+    members = new Type[area]{};
 }
-
+template <typename Type, Integral SizeT>
+inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
+{
+    if (sizeof...(membs) > (area))
+        throw std::invalid_argument("dimensions of matrix must match number of values");
+    members = new Type[area]{membs...};
+}
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     area = mat.area;
-    members = new Type[sizeX * sizeY]{Type()};
-
+    members = new Type[area]{Type()};
     for (SizeT i = 0; i < sizeY; ++i)
     {
         for (SizeT j = 0; j < sizeX; ++j)
@@ -206,7 +200,6 @@ inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
         }
     }
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
 {
@@ -217,14 +210,13 @@ inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
     mat.members = nullptr;
     mat.sizeX = mat.sizeY = mat.area = 0;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
     area = mat.area;
-    members = new Type[sizeX * sizeY];
+    members = new Type[area];
     for (SizeT i = 0; i < sizeY; ++i)
     {
         for (SizeT j = 0; j < sizeX; ++j)
@@ -234,7 +226,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
 {
@@ -246,7 +237,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
     mat.sizeX = mat.sizeY = mat.area = 0;
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
 {
@@ -254,7 +244,6 @@ inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
     return members[(y * sizeX) + x];
 }
-
 template <typename Type, Integral SizeT>
 inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
 {
@@ -262,7 +251,6 @@ inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
     return &members[(y * sizeX) + x];
 }
-
 template <typename Type, Integral SizeT>
 inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
 {
@@ -270,7 +258,6 @@ inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
     return members[(y * sizeX) + x];
 }
-
 template <typename Type, Integral SizeT>
 inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
 {
@@ -278,7 +265,6 @@ inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
         throw std::out_of_range("FastAt: index out of range");
     return members[index];
 }
-
 template <typename Type, Integral SizeT>
 inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
 {
@@ -286,7 +272,6 @@ inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
         throw std::out_of_range("FastAt: index out of range");
     return members[index];
 }
-
 template <typename Type, Integral SizeT>
 inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
 {
@@ -294,25 +279,21 @@ inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
         throw std::out_of_range("FastAt: index out of range");
     return &members[index];
 }
-
 template <typename Type, Integral SizeT>
 inline SizeT Mat<Type, SizeT>::SizeX() const
 {
     return sizeX;
 }
-
 template <typename Type, Integral SizeT>
 inline SizeT Mat<Type, SizeT>::SizeY() const
 {
     return sizeY;
 }
-
 template <typename Type, Integral SizeT>
 inline SizeT Mat<Type, SizeT>::Area() const
 {
     return area;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 {
@@ -331,7 +312,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat) const
 {
@@ -344,7 +324,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat)
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
 {
@@ -355,7 +334,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat)
 {
@@ -366,7 +344,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat
         this->members[i] += mat.members[i];
     }
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
 {
@@ -376,7 +353,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat) const
 {
@@ -389,7 +365,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat)
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
 {
@@ -400,7 +375,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat)
 {
@@ -412,7 +386,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
 {
@@ -422,7 +395,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat) const
 {
@@ -435,7 +407,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat)
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
 {
@@ -446,7 +417,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat)
 {
@@ -458,7 +428,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
 {
@@ -468,7 +437,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat) const
 {
@@ -481,7 +449,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat)
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
 {
@@ -492,7 +459,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
     }
     return res;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat)
 {
@@ -504,7 +470,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
 {
@@ -514,7 +479,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
     }
     return *this;
 }
-
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::~Mat()
 {
