@@ -9,7 +9,8 @@ class Mat
 {
 private:
     Type *members = nullptr;
-    SizeT sizeY = 0, sizeX = 0, area = 0;
+    SizeT sizeY = 0, sizeX = 0;
+    size_t area = 0;
 
 public:
     using type = Type;
@@ -33,7 +34,7 @@ public:
 
     SizeT SizeX() const;
     SizeT SizeY() const;
-    SizeT Area() const;
+    size_t Area() const;
 
     Mat Dot(const Mat &) const;
 
@@ -91,6 +92,7 @@ public:
     }
 
     //Transform functions
+
     template <bool CORDS_PARAMS_FLAG = false>
     Mat Transform(const auto &Func) const
     {
@@ -111,6 +113,7 @@ public:
         }
         return res;
     }
+
     template <bool CORDS_PARAMS_FLAG = false>
     Mat Transform(const auto &Func, const Mat &mat) const
     {
@@ -133,6 +136,7 @@ public:
     }
 
     //ApplyFunction function
+
     template <bool CORDS_PARAMS_FLAG = false>
     void ApplyFunction(const auto &Func)
     {
@@ -151,6 +155,7 @@ public:
             }
         }
     }
+
     template <bool CORDS_PARAMS_FLAG = false>
     void ApplyFunction(const auto &Func, const Mat &mat)
     {
@@ -178,6 +183,7 @@ inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 {
     members = new Type[area]{};
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
 {
@@ -185,6 +191,7 @@ inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), siz
         throw std::invalid_argument("dimensions of matrix must match number of values");
     members = new Type[area]{membs...};
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
@@ -200,6 +207,7 @@ inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
         }
     }
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
 {
@@ -210,6 +218,7 @@ inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
     mat.members = nullptr;
     mat.sizeX = mat.sizeY = mat.area = 0;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
 {
@@ -226,6 +235,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
 {
@@ -237,6 +247,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
     mat.sizeX = mat.sizeY = mat.area = 0;
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
 {
@@ -244,6 +255,7 @@ inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
     return members[(y * sizeX) + x];
 }
+
 template <typename Type, Integral SizeT>
 inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
 {
@@ -251,6 +263,7 @@ inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
     return &members[(y * sizeX) + x];
 }
+
 template <typename Type, Integral SizeT>
 inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
 {
@@ -258,6 +271,7 @@ inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
         throw std::out_of_range("At: out of range, " + std::to_string(x) + ' ' + std::to_string(y));
     return members[(y * sizeX) + x];
 }
+
 template <typename Type, Integral SizeT>
 inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
 {
@@ -265,6 +279,7 @@ inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
         throw std::out_of_range("FastAt: index out of range");
     return members[index];
 }
+
 template <typename Type, Integral SizeT>
 inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
 {
@@ -272,6 +287,7 @@ inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
         throw std::out_of_range("FastAt: index out of range");
     return members[index];
 }
+
 template <typename Type, Integral SizeT>
 inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
 {
@@ -279,21 +295,16 @@ inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
         throw std::out_of_range("FastAt: index out of range");
     return &members[index];
 }
+
 template <typename Type, Integral SizeT>
-inline SizeT Mat<Type, SizeT>::SizeX() const
-{
-    return sizeX;
-}
+inline SizeT Mat<Type, SizeT>::SizeX() const { return sizeX; }
+
 template <typename Type, Integral SizeT>
-inline SizeT Mat<Type, SizeT>::SizeY() const
-{
-    return sizeY;
-}
+inline SizeT Mat<Type, SizeT>::SizeY() const { return sizeY; }
+
 template <typename Type, Integral SizeT>
-inline SizeT Mat<Type, SizeT>::Area() const
-{
-    return area;
-}
+inline size_t Mat<Type, SizeT>::Area() const { return area; }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 {
@@ -312,173 +323,190 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator+: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] + mat.members[i];
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
 {
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] + value;
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator+=: parameter must match the dimensions of this");
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] += mat.members[i];
     }
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
 {
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] += value;
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator-: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] - mat.members[i];
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
 {
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] - value;
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator-=: parameter must match the dimensions of this");
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] -= mat.members[i];
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
 {
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] -= value;
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator*: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] * mat.members[i];
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
 {
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] * value;
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator*=: parameter must match the dimensions of this");
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] *= mat.members[i];
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
 {
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] *= value;
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat) const
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator/: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] / mat.members[i];
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
 {
     Mat res(sizeX, sizeY);
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         res.members[i] = this->members[i] / value;
     }
     return res;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat)
 {
     if ((mat.sizeX != sizeX) || (mat.sizeY != sizeY))
         throw std::invalid_argument("operator/=: parameter must match the dimensions of this");
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] /= mat.members[i];
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
 {
-    for (SizeT i = 0; i < area; ++i)
+    for (size_t i = 0; i < area; ++i)
     {
         this->members[i] /= value;
     }
     return *this;
 }
+
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT>::~Mat()
 {
