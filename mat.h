@@ -31,8 +31,10 @@ public:
     Type &At(SizeT, SizeT);
     Type *AtP(SizeT, SizeT);
     Type At(SizeT, SizeT) const;
+
     Type &FastAt(SizeT);
     Type FastAt(SizeT) const;
+    Type *FastAtP(SizeT);
 
     SizeT SizeX() const;
     SizeT SizeY() const;
@@ -283,6 +285,14 @@ inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
     if (index >= area)
         throw std::out_of_range("FastAt: index out of range");
     return members[index];
+}
+
+template <typename Type, Integral SizeT>
+inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
+{
+    if (index >= area)
+        throw std::out_of_range("FastAt: index out of range");
+    return &members[index];
 }
 
 template <typename Type, Integral SizeT>
