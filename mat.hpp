@@ -328,15 +328,12 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::VecMult(const Mat<Type, SizeT> &mat) const
 {
-    Mat res(sizeX, 1);
-    if ((sizeY != 1) || (mat.sizeY != 1)) //3x1 * 2x1 for example
-        throw std::invalid_argument("both matrices must be vectors");
-    //not sure how cache friendly this is
-    for (SizeT i = 0; i < sizeX; ++i)
+    Mat res(sizeX, sizeY);
+    for (size_t i = 0; i < area; ++i)
     {
-        for (SizeT j = 0; j < mat.sizeX; ++j)
+        for (size_t j = 0; j < mat.area; ++j)
         {
-            res.At(i, 0) += At(i, 0) * mat.At(j, 0);
+            res.FastAt(i) += FastAt(i) * mat.FastAt(j);
         }
     }
     return res;
