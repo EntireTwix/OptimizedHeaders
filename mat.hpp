@@ -37,7 +37,7 @@ public:
     size_t Area() const;
 
     Mat Dot(const Mat &) const;
-    Mat VecMult(const Mat &) const;
+    Mat Distribute(const Mat &) const;
 
     Mat operator+(const Mat &) const;
     Mat operator+(const Type &) const;
@@ -309,24 +309,42 @@ inline size_t Mat<Type, SizeT>::Area() const { return area; }
 template <typename Type, Integral SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 {
-    if (sizeX != mat.sizeY)
+    if (!((sizeX == mat.sizeY) || (sizeY == mat.sizeX)))
         throw std::invalid_argument("Dot: dimensions invalid");
-    Mat res(mat.sizeX, sizeY);        //product dimensions are the x of both mats
-    for (SizeT i = 0; i < sizeY; ++i) //for each y on the A matrix
+    if (sizeX == mat.sizeY)
     {
-        for (SizeT j = 0; j < mat.sizeX; ++j) //for each x on the B matrix
+        Mat res(mat.sizeX, sizeY);        //product dimensions are the x of both mats
+        for (SizeT i = 0; i < sizeY; ++i) //for each y on the A matrix
         {
-            for (int k = 0; k < sizeX; ++k) //is equivelant to mat.sizeY()
+            for (SizeT j = 0; j < mat.sizeX; ++j) //for each x on the B matrix
             {
-                res.At(j, i) += At(k, i) * mat.At(j, k);
+                for (int k = 0; k < sizeX; ++k) //is equivelant to mat.sizeY()
+                {
+                    res.At(j, i) += At(k, i) * mat.At(j, k);
+                }
             }
         }
+        return res;
     }
-    return res;
+    else
+    {
+        Mat res(sizeX, mat.sizeY);
+        for (SizeT i = 0; i < mat.sizeY; ++i)
+        {
+            for (SizeT j = 0; j < sizeX; ++j)
+            {
+                for (int k = 0; k < mat.sizeX; ++k)
+                {
+                    res.At(j, i) += At(j, k) * mat.At(k, i);
+                }
+            }
+        }
+        return res;
+    }
 }
 
 template <typename Type, Integral SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::VecMult(const Mat<Type, SizeT> &mat) const
+inline Mat<Type, SizeT> Mat<Type, SizeT>::Distribute(const Mat<Type, SizeT> &mat) const
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < area; ++i)
