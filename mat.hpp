@@ -313,6 +313,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
         throw std::invalid_argument("Dot: dimensions invalid");
     if (sizeX == mat.sizeY)
     {
+        //std::cout << "Beep\n";
         Mat res(mat.sizeX, sizeY);        //product dimensions are the x of both mats
         for (SizeT i = 0; i < sizeY; ++i) //for each y on the A matrix
         {
@@ -328,6 +329,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
     }
     else
     {
+        //std::cout << "Boop\n";
         Mat res(sizeX, mat.sizeY);
         for (SizeT i = 0; i < mat.sizeY; ++i)
         {
@@ -550,3 +552,4 @@ using fMat = Mat<float>;
 using dMat = Mat<double>;
 using iMat = Mat<int>;
 using MLMat = Mat<float, uint16_t>;
+using ImgMat = Mat<uint8_t, uint16_t>;
