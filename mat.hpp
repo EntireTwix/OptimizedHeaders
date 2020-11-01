@@ -14,6 +14,7 @@ private:
 
 public:
     using type = Type;
+    using storage_type = SizeT;
 
     Mat() = default;
     explicit Mat(SizeT, SizeT);
