@@ -554,3 +554,6 @@ using dMat = Mat<double>;
 using iMat = Mat<int>;
 using MLMat = Mat<float, uint16_t>;
 using ImgMat = Mat<uint8_t, uint16_t>;
+
+template <typename T>
+concept Matrix = std::is_base_of<Mat<typename T::type, typename T::storage_type>, T>::value;
