@@ -4,7 +4,7 @@
 #include <ostream>
 #include "../MiscHeaderFiles-master/generics.h"
 
-template <typename Type = float, Integral SizeT = size_t>
+template <typename Type = float, SizeType SizeT = size_t>
 class Mat
 {
 private:
@@ -180,13 +180,13 @@ public:
     ~Mat();
 };
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 {
     members = new Type[area]{};
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
 {
     if (sizeof...(membs) > (area))
@@ -194,7 +194,7 @@ inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), siz
     members = new Type[area]{membs...};
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
     sizeX = mat.sizeX;
@@ -210,7 +210,7 @@ inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
     }
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
 {
     sizeX = mat.sizeX;
@@ -221,7 +221,7 @@ inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
     mat.sizeX = mat.sizeY = mat.area = 0;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
 {
     sizeX = mat.sizeX;
@@ -238,7 +238,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
 {
     sizeX = mat.sizeX;
@@ -250,7 +250,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
 {
     if ((x >= sizeX) || (y >= sizeY))
@@ -258,7 +258,7 @@ inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
     return members[(y * sizeX) + x];
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
 {
     if ((x >= sizeX) || (y >= sizeY))
@@ -266,7 +266,7 @@ inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
     return &members[(y * sizeX) + x];
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
 {
     if ((x >= sizeX) || (y >= sizeY))
@@ -274,7 +274,7 @@ inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
     return members[(y * sizeX) + x];
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
 {
     if (index >= area)
@@ -282,7 +282,7 @@ inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
     return members[index];
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
 {
     if (index >= area)
@@ -290,7 +290,7 @@ inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
     return members[index];
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
 {
     if (index >= area)
@@ -298,16 +298,16 @@ inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
     return &members[index];
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline SizeT Mat<Type, SizeT>::SizeX() const { return sizeX; }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline SizeT Mat<Type, SizeT>::SizeY() const { return sizeY; }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline size_t Mat<Type, SizeT>::Area() const { return area; }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 {
     if (!((sizeX == mat.sizeY) || (sizeY == mat.sizeX)))
@@ -346,7 +346,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
     }
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Distribute(const Mat<Type, SizeT> &mat) const
 {
     Mat res(sizeX, sizeY);
@@ -360,7 +360,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Distribute(const Mat<Type, SizeT> &mat
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -373,7 +373,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -384,7 +384,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -395,7 +395,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat
     }
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -405,7 +405,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -418,7 +418,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -429,7 +429,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -441,7 +441,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -451,7 +451,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -464,7 +464,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -475,7 +475,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -487,7 +487,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -497,7 +497,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -510,7 +510,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -521,7 +521,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
     return res;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -533,7 +533,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -543,7 +543,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
     return *this;
 }
 
-template <typename Type, Integral SizeT>
+template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT>::~Mat()
 {
     delete[] members;
