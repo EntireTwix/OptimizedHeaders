@@ -197,15 +197,15 @@ inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), siz
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
-    sizeX = mat.sizeX;
-    sizeY = mat.sizeY;
-    area = mat.area;
-    members = new Type[area]{Type()};
-    for (SizeT i = 0; i < sizeY; ++i)
+    if (mat.members)
     {
-        for (SizeT j = 0; j < sizeX; ++j)
+        sizeX = mat.sizeX;
+        sizeY = mat.sizeY;
+        area = mat.area;
+        members = new Type[area]{Type()};
+        for (size_t i = 0; i < mat.Area(); ++i)
         {
-            At(j, i) = mat.At(j, i);
+            FastAt(i) = mat.FastAt(i);
         }
     }
 }
@@ -224,15 +224,15 @@ inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
 {
-    sizeX = mat.sizeX;
-    sizeY = mat.sizeY;
-    area = mat.area;
-    members = new Type[area];
-    for (SizeT i = 0; i < sizeY; ++i)
+    if (mat.members)
     {
-        for (SizeT j = 0; j < sizeX; ++j)
+        sizeX = mat.sizeX;
+        sizeY = mat.sizeY;
+        area = mat.area;
+        members = new Type[area]{Type()};
+        for (size_t i = 0; i < mat.Area(); ++i)
         {
-            At(j, i) = mat.At(j, i);
+            FastAt(i) = mat.FastAt(i);
         }
     }
     return *this;
