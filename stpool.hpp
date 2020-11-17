@@ -23,7 +23,6 @@ public:
 
         for (uint_fast8_t i = 0; i < threadCount; ++i)
             workers[i] = std::thread([this, i]() {
-                std::function<void()> job;
                 while (!stopped)
                 {
                     while (paused)
@@ -31,10 +30,7 @@ public:
                     }
                     if (jobs.was_size() && !paused)
                     {
-                        job = jobs.pop();
-                        if (stopped)
-                            break;
-                        job();
+                        (jobs.pop())();
                         --extraSize;
                     }
                 }
@@ -47,7 +43,7 @@ public:
         jobs.push(func);
         ++extraSize;
     }
-    size_t Jobs()
+    size_t Jobs() const
     {
         return extraSize;
     }
