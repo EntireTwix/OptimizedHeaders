@@ -2,7 +2,7 @@
 #include <thread>
 #include <functional>
 #include <atomic>
-#include "atomic_queue/atomic_queue.h" //from https://github.com/max0x7ba/atomic_queue
+#include "../atomic_queue-master/include/atomic_queue/atomic_queue.h" //from https://github.com/max0x7ba/atomic_queue
 
 template <uint_fast8_t threads = 0, size_t queueSize = 512>
 class ThreadPool final
