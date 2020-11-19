@@ -4,8 +4,8 @@
 #include <ostream>
 #include "cuda_mat.cu"
 
-//16000 for i7 6700K & gtx 1060
-#define cpu_threshold 16000 //the threshold for number of the elements till the gpu kicks in
+//16000 for i7 6700K & gtx 1100
+#define cpu_threshold 1100 //the threshold for number of the elements till the gpu kicks in
 
 template <typename Type, typename SizeT = size_t>
 class Mat
@@ -48,6 +48,7 @@ public:
     size_t Area() const;
 
     Mat Dot(const Mat &) const;
+    Mat DotBench(const Mat &, bool) const;
     Mat Distribute(const Mat &) const;
 
     Mat operator+(const Mat &) const;
@@ -349,6 +350,38 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 }
 
 template <typename Type, typename SizeT>
+inline Mat<Type, SizeT> Mat<Type, SizeT>::DotBench(const Mat<Type, SizeT> &mat, bool FORCE_GPU = false) const
+{
+    if (!((sizeX == mat.sizeY) || (sizeY == mat.sizeX)))
+        throw std::invalid_argument("Dot: dimensions invalid");
+    if (sizeX == mat.sizeY)
+    {
+        Mat res(mat.sizeX, sizeY);
+#ifdef __NVCC__
+        if (FORCE_GPU)
+        {
+            mat_matrix_mult(this->members, mat.members, res.members, sizeX, sizeY, mat.sizeX, mat.sizeY);
+            //std::cout << "GPU\n";
+            return res;
+        }
+#endif
+        for (SizeT i = 0; i < sizeY; ++i)
+        {
+            for (SizeT j = 0; j < mat.sizeX; ++j)
+            {
+                for (int k = 0; k < sizeX; ++k)
+                {
+                    res.FastAt(j + (i * mat.sizeX)) += FastAt(k + (i * sizeX)) * mat.FastAt(j + (k * mat.sizeX));
+                }
+            }
+        }
+        //std::cout << "CPU\n";
+        return res;
+    }
+    return mat.DotBench(*this, FORCE_GPU);
+}
+
+template <typename Type, typename SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Distribute(const Mat<Type, SizeT> &mat) const
 {
     Mat res(sizeX, sizeY);
@@ -556,8 +589,3 @@ using dMat = Mat<double>;
 using iMat = Mat<int>;
 using MLMat = Mat<float, uint16_t>;
 using ImgMat = Mat<uint8_t, uint16_t>;
-
-#ifndef __NVCC__
-template <typename T>
-concept Matrix = std::is_base_of<Mat<typename T::type, typename T::storage_type>, T>::value;
-#endif
