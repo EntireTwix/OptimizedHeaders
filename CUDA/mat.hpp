@@ -2,18 +2,12 @@
 #include <stdexcept>
 #include <string>
 #include <ostream>
-
-#ifdef __NVCC__
 #include "cuda_mat.cu"
-#else
-#include "../../MiscHeaderFiles-master/generics.h"
-#endif
 
-#ifdef __NVCC__
+//16000 for i7 6700K & gtx 1060
+#define cpu_threshold 16000 //the threshold for number of the elements till the gpu kicks in
+
 template <typename Type, typename SizeT = size_t>
-#else
-template <typename Type, SizeType SizeT = size_t>
-#endif
 class Mat
 {
 private:
@@ -194,21 +188,13 @@ public:
     ~Mat();
 };
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 {
     members = new Type[area]{};
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
     if (mat.members)
@@ -224,11 +210,7 @@ inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
     }
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
 {
     sizeX = mat.sizeX;
@@ -239,11 +221,7 @@ inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
     mat.sizeX = mat.sizeY = mat.area = 0;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
 {
     if (mat.members)
@@ -260,11 +238,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
 {
     sizeX = mat.sizeX;
@@ -276,11 +250,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
 {
     if ((x >= sizeX) || (y >= sizeY))
@@ -288,11 +258,7 @@ inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
     return members[(y * sizeX) + x];
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
 {
     if ((x >= sizeX) || (y >= sizeY))
@@ -300,11 +266,7 @@ inline Type *Mat<Type, SizeT>::AtP(SizeT x, SizeT y)
     return &members[(y * sizeX) + x];
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
 {
     if ((x >= sizeX) || (y >= sizeY))
@@ -312,11 +274,7 @@ inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
     return members[(y * sizeX) + x];
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
 {
     if (index >= area)
@@ -324,11 +282,7 @@ inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
     return members[index];
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
 {
     if (index >= area)
@@ -336,11 +290,7 @@ inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
     return members[index];
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
 {
     if (index >= area)
@@ -348,51 +298,40 @@ inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
     return &members[index];
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline SizeT Mat<Type, SizeT>::SizeX() const
 {
     return sizeX;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline SizeT Mat<Type, SizeT>::SizeY() const
 {
     return sizeY;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline size_t Mat<Type, SizeT>::Area() const
 {
     return area;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 {
     if (!((sizeX == mat.sizeY) || (sizeY == mat.sizeX)))
         throw std::invalid_argument("Dot: dimensions invalid");
     if (sizeX == mat.sizeY)
     {
-        //i = y
-        //j = x
         Mat res(mat.sizeX, sizeY);
-#ifndef __NVCC__
+#ifdef __NVCC__
+        if ((area + mat.area) > cpu_threshold)
+        {
+            mat_matrix_mult(this->members, mat.members, res.members, sizeX, sizeY, mat.sizeX, mat.sizeY);
+            //std::cout << "GPU\n";
+            return res;
+        }
+#endif
         for (SizeT i = 0; i < sizeY; ++i)
         {
             for (SizeT j = 0; j < mat.sizeX; ++j)
@@ -403,19 +342,13 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
                 }
             }
         }
-#else
-        mat_matrix_mult(this->members, mat.members, res.members, sizeX, sizeY, mat.sizeX, mat.sizeY, mat.sizeX, sizeY);
-#endif
+        //std::cout << "CPU\n";
         return res;
     }
     return mat.Dot(*this);
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Distribute(const Mat<Type, SizeT> &mat) const
 {
     Mat res(sizeX, sizeY);
@@ -429,11 +362,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Distribute(const Mat<Type, SizeT> &mat
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -446,11 +375,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -461,11 +386,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -476,11 +397,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat
     }
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -490,11 +407,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -507,11 +420,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -522,11 +431,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -538,11 +443,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -552,11 +453,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -569,11 +466,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -584,11 +477,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -600,11 +489,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -614,11 +499,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -631,11 +512,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat)
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
 {
     Mat res(sizeX, sizeY);
@@ -646,11 +523,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
     return res;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat)
 {
     if (area != mat.area)
@@ -662,11 +535,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
 {
     for (size_t i = 0; i < area; ++i)
@@ -676,11 +545,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
     return *this;
 }
 
-#ifdef __NVCC__
 template <typename Type, typename SizeT>
-#else
-template <typename Type, SizeType SizeT>
-#endif
 inline Mat<Type, SizeT>::~Mat()
 {
     delete[] members;
