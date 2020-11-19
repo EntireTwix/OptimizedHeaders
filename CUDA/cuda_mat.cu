@@ -15,7 +15,7 @@ __global__ void gpu_matrix_mult(T *a, T *b, T *c, uint16_t ax_sz, uint16_t ay_sz
 }
 
 template <typename T>
-void mat_matrix_mult(T *a, T *b, T *c, uint16_t ax_sz, uint16_t ay_sz, uint16_t bx_sz, uint16_t by_sz, uint16_t cx_sz, uint16_t cy_sz)
+void mat_matrix_mult(T *a, T *b, T *c, uint16_t ax_sz, uint16_t ay_sz, uint16_t bx_sz, uint16_t by_sz)
 {
     T *reg_a;
     T *reg_b;
@@ -23,7 +23,7 @@ void mat_matrix_mult(T *a, T *b, T *c, uint16_t ax_sz, uint16_t ay_sz, uint16_t 
 
     cudaMalloc((void **)&reg_a, ax_sz * ay_sz * sizeof(T));
     cudaMalloc((void **)&reg_b, bx_sz * by_sz * sizeof(T));
-    cudaMalloc((void **)&reg_c, cx_sz * cy_sz * sizeof(T));
+    cudaMalloc((void **)&reg_c, bx_sz * ay_sz * sizeof(T));
 
     cudaMemcpy(reg_a, a, ax_sz * ay_sz * sizeof(T), cudaMemcpyHostToDevice);
     cudaMemcpy(reg_b, b, bx_sz * by_sz * sizeof(T), cudaMemcpyHostToDevice);
@@ -35,7 +35,7 @@ void mat_matrix_mult(T *a, T *b, T *c, uint16_t ax_sz, uint16_t ay_sz, uint16_t 
     dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
 
     gpu_matrix_mult<<<dimGrid, dimBlock>>>(reg_a, reg_b, reg_c, ax_sz, ay_sz, bx_sz, by_sz);
-    cudaMemcpy(c, reg_c, sizeof(T) * cx_sz * cy_sz, cudaMemcpyDeviceToHost);
+    cudaMemcpy(c, reg_c, sizeof(T) * bx_sz * ay_sz, cudaMemcpyDeviceToHost);
     cudaThreadSynchronize();
 
     cudaFree(reg_a);
