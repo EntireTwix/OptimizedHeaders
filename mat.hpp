@@ -229,6 +229,8 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
         sizeX = mat.sizeX;
         sizeY = mat.sizeY;
         area = mat.area;
+        if (members)
+            delete[] members;
         members = new Type[area]{Type()};
         for (size_t i = 0; i < mat.Area(); ++i)
         {
