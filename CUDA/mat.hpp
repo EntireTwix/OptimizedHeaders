@@ -196,14 +196,6 @@ inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 }
 
 template <typename Type, typename SizeT>
-inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
-{
-    if (sizeof...(membs) > (area))
-        throw std::invalid_argument("dimensions of matrix must match number of values");
-    members = new Type[area]{membs...};
-}
-
-template <typename Type, typename SizeT>
 inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
     sizeX = mat.sizeX;
