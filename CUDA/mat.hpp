@@ -196,21 +196,26 @@ inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 }
 
 template <typename Type, typename SizeT>
+inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
+{
+    if (sizeof...(membs) > (area))
+        throw std::invalid_argument("dimensions of matrix must match number of values");
+    members = new Type[area]{membs...};
+}
+
+template <typename Type, typename SizeT>
 inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
-    if (mat.members)
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    area = mat.area;
+    if (area)
     {
-        sizeX = mat.sizeX;
-        sizeY = mat.sizeY;
-        area = mat.area;
-        if (area)
-        {
-            members = new Type[area]{Type()};
-        }
-        for (size_t i = 0; i < mat.Area(); ++i)
-        {
-            FastAt(i) = mat.FastAt(i);
-        }
+        members = new Type[area]{Type()};
+    }
+    for (size_t i = 0; i < mat.Area(); ++i)
+    {
+        FastAt(i) = mat.FastAt(i);
     }
 }
 
@@ -228,25 +233,21 @@ inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat)
 template <typename Type, typename SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
 {
-    std::cout << "beep\n";
-    if (mat.members)
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    area = mat.area;
+    if (members)
     {
-        sizeX = mat.sizeX;
-        sizeY = mat.sizeY;
-        area = mat.area;
-        if (members)
-        {
-            delete[] members;
-            members = nullptr;
-        }
-        if (area)
-        {
-            members = new Type[area]{Type()};
-        }
-        for (size_t i = 0; i < area; ++i)
-        {
-            FastAt(i) = mat.FastAt(i);
-        }
+        delete[] members;
+        members = nullptr;
+    }
+    if (area)
+    {
+        members = new Type[area]{Type()};
+    }
+    for (size_t i = 0; i < area; ++i)
+    {
+        FastAt(i) = mat.FastAt(i);
     }
     return *this;
 }
@@ -258,12 +259,15 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat)
     sizeY = mat.sizeY;
     area = mat.area;
     if (members)
+    {
         delete[] members;
+    }
     members = mat.members;
     mat.members = nullptr;
     mat.sizeX = mat.sizeY = mat.area = 0;
     return *this;
 }
+
 template <typename Type, typename SizeT>
 inline Type &Mat<Type, SizeT>::At(SizeT x, SizeT y) //indexing matrix
 {
