@@ -4,8 +4,8 @@
 #include <ostream>
 #include "cuda_mat.cu"
 
-//16000 for i7 6700K & gtx 1100
-#define cpu_threshold 1100 //the threshold for number of the elements till the gpu kicks in
+//16000 for i7 6700K & gtx 830
+#define cpu_threshold 830 //the threshold for number of the elements till the gpu kicks in
 
 template <typename Type, typename SizeT = size_t>
 class Mat
@@ -325,25 +325,25 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
     if (sizeX == mat.sizeY)
     {
         Mat res(mat.sizeX, sizeY);
-#ifdef __NVCC__
         if ((area + mat.area) > cpu_threshold)
         {
             mat_matrix_mult(this->members, mat.members, res.members, sizeX, sizeY, mat.sizeX, mat.sizeY);
             //std::cout << "GPU\n";
-            return res;
         }
-#endif
-        for (SizeT i = 0; i < sizeY; ++i)
+        else
         {
-            for (SizeT j = 0; j < mat.sizeX; ++j)
+            for (SizeT i = 0; i < sizeY; ++i)
             {
-                for (int k = 0; k < sizeX; ++k)
+                for (SizeT j = 0; j < mat.sizeX; ++j)
                 {
-                    res.FastAt(j + (i * mat.sizeX)) += FastAt(k + (i * sizeX)) * mat.FastAt(j + (k * mat.sizeX));
+                    for (int k = 0; k < sizeX; ++k)
+                    {
+                        res.FastAt(j + (i * mat.sizeX)) += FastAt(k + (i * sizeX)) * mat.FastAt(j + (k * mat.sizeX));
+                    }
                 }
             }
+            //std::cout << "CPU\n";
         }
-        //std::cout << "CPU\n";
         return res;
     }
     return mat.Dot(*this);
