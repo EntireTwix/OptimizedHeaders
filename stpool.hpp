@@ -47,6 +47,10 @@ public:
     {
         return extraSize;
     }
+    uint8_t Workers() const
+    {
+        return threadCount;
+    }
 
     void Start()
     {
