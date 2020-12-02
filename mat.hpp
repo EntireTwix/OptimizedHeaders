@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <string>
 #include <ostream>
-#include "../MiscHeaderFiles-master/generics.hpp"
+#include "generics.hpp"
 
 template <typename Type = float, SizeType SizeT = size_t>
 class Mat
