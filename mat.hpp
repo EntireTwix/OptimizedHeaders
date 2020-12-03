@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <string>
 #include <ostream>
-#include "generics.hpp"
+#include "../MiscHeaderFiles/generics.hpp"
 
 template <typename Type = float, SizeType SizeT = size_t>
 class Mat
@@ -18,7 +18,14 @@ public:
 
     Mat() = default;
     explicit Mat(SizeT, SizeT);
-    explicit Mat(SizeT, SizeT, auto &&...);
+
+    template <typename... Params>
+    explicit Mat(SizeT, SizeT, Params &&...) : sizeX(w), sizeY(h), area(w* h)
+    {
+        if (sizeof...(membs) > (area))
+            throw std::invalid_argument("dimensions of matrix must match number of values");
+        members = new Type[area]{ membs... };
+    }
 
     Mat(const Mat &);
     Mat(Mat &&);
@@ -95,8 +102,8 @@ public:
 
     //Transform functions
 
-    template <bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const auto &Func) const
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const Function&Func) const
     {
         Mat res(sizeX, sizeY);
         for (SizeT i = 0; i < sizeY; ++i)
@@ -116,8 +123,8 @@ public:
         return res;
     }
 
-    template <bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const auto &Func, const Mat &mat) const
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    Mat Transform(const Function&Func, const Mat &mat) const
     {
         Mat res(sizeX, sizeY);
         for (SizeT i = 0; i < sizeY; ++i)
@@ -139,8 +146,8 @@ public:
 
     //ApplyFunction function
 
-    template <bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const auto &Func)
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const Function&Func)
     {
         for (SizeT i = 0; i < sizeY; ++i)
         {
@@ -158,8 +165,8 @@ public:
         }
     }
 
-    template <bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const auto &Func, const Mat &mat)
+    template <typename Function, bool CORDS_PARAMS_FLAG = false>
+    void ApplyFunction(const Function&Func, const Mat &mat)
     {
         for (SizeT i = 0; i < sizeY; ++i)
         {
@@ -184,14 +191,6 @@ template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 {
     members = new Type[area]{};
-}
-
-template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h, auto &&... membs) : sizeX(w), sizeY(h), area(w * h)
-{
-    if (sizeof...(membs) > (area))
-        throw std::invalid_argument("dimensions of matrix must match number of values");
-    members = new Type[area]{membs...};
 }
 
 template <typename Type, SizeType SizeT>
