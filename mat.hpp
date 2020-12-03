@@ -20,11 +20,11 @@ public:
     explicit Mat(SizeT, SizeT);
 
     template <typename... Params>
-    explicit Mat(SizeT, SizeT, Params &&...) : sizeX(w), sizeY(h), area(w* h)
+    explicit Mat(SizeT w, SizeT h, Params &&... membs) : sizeX(w), sizeY(h), area(w * h)
     {
         if (sizeof...(membs) > (area))
             throw std::invalid_argument("dimensions of matrix must match number of values");
-        members = new Type[area]{ membs... };
+        members = new Type[area]{membs...};
     }
 
     Mat(const Mat &);
@@ -103,7 +103,7 @@ public:
     //Transform functions
 
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const Function&Func) const
+    Mat Transform(const Function &Func) const
     {
         Mat res(sizeX, sizeY);
         for (SizeT i = 0; i < sizeY; ++i)
@@ -124,7 +124,7 @@ public:
     }
 
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const Function&Func, const Mat &mat) const
+    Mat Transform(const Function &Func, const Mat &mat) const
     {
         Mat res(sizeX, sizeY);
         for (SizeT i = 0; i < sizeY; ++i)
@@ -147,7 +147,7 @@ public:
     //ApplyFunction function
 
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const Function&Func)
+    void ApplyFunction(const Function &Func)
     {
         for (SizeT i = 0; i < sizeY; ++i)
         {
@@ -166,7 +166,7 @@ public:
     }
 
     template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const Function&Func, const Mat &mat)
+    void ApplyFunction(const Function &Func, const Mat &mat)
     {
         for (SizeT i = 0; i < sizeY; ++i)
         {
