@@ -2,7 +2,11 @@
 #include <stdexcept>
 #include <string>
 #include <ostream>
-#include "../MiscHeaderFiles/generics.hpp"
+#include <concepts>
+#include <type_traits>
+
+template <typename T>
+concept SizeType = std::is_unsigned_v<T> &&std::is_integral_v<T>;
 
 template <typename Type = float, SizeType SizeT = size_t>
 class Mat
