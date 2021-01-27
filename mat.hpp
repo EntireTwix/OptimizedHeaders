@@ -45,7 +45,7 @@ public:
 
     SizeT SizeX() const;
     SizeT SizeY() const;
-    size_t Area() const;
+    auto Area() const;
 
     Mat Dot(const Mat &) const;
     Mat Distribute(const Mat &) const;
@@ -316,7 +316,7 @@ template <typename Type, SizeType SizeT>
 inline SizeT Mat<Type, SizeT>::SizeY() const { return sizeY; }
 
 template <typename Type, SizeType SizeT>
-inline size_t Mat<Type, SizeT>::Area() const { return sizeX * sizeY; }
+inline auto Mat<Type, SizeT>::Area() const { return sizeX * sizeY; }
 
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
