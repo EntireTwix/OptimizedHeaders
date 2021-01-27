@@ -70,7 +70,7 @@ public:
             });
     }
 
-    void AddTask(std::function<void()> func)
+    void AddTask(std::function<void()>&& func)
     {
         //finding worker with least jobs
         size_t smallest = -1;
