@@ -37,7 +37,7 @@ public:
             });
     }
 
-    void AddTask(std::function<void()> func)
+    void AddTask(std::function<void()>&& func)
     {
         //adding to its job queue
         jobs.push(func);
