@@ -103,86 +103,28 @@ public:
         return res;
     }
 
-    //Transform functions
-
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const Function &Func) const
+    template <typename Function>
+    Mat Transform(Function&& Func) const
     {
         Mat res(sizeX, sizeY);
         for (SizeT i = 0; i < sizeY; ++i)
         {
             for (SizeT j = 0; j < sizeX; ++j)
             {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    res.At(j, i) = Func(this->At(j, i), j, i);
-                }
-                else
-                {
-                    res.At(j, i) = Func(this->At(j, i));
-                }
+                res.At(j, i) = Func(this->At(j, i), j, i);
             }
         }
         return res;
     }
 
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    Mat Transform(const Function &Func, const Mat &mat) const
-    {
-        Mat res(sizeX, sizeY);
-        for (SizeT i = 0; i < sizeY; ++i)
-        {
-            for (SizeT j = 0; j < sizeX; ++j)
-            {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    res.At(j, i) = Func(this->At(j, i), mat.At(j, i), j, i);
-                }
-                else
-                {
-                    res.At(j, i) = Func(this->At(j, i), mat.At(j, i));
-                }
-            }
-        }
-        return res;
-    }
-
-    //ApplyFunction function
-
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const Function &Func)
+    template <typename Function>
+    void ApplyFunction(Function&& Func)
     {
         for (SizeT i = 0; i < sizeY; ++i)
         {
             for (SizeT j = 0; j < sizeX; ++j)
             {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    Func(this->At(j, i), j, i);
-                }
-                else
-                {
-                    Func(this->At(j, i));
-                }
-            }
-        }
-    }
-
-    template <typename Function, bool CORDS_PARAMS_FLAG = false>
-    void ApplyFunction(const Function &Func, const Mat &mat)
-    {
-        for (SizeT i = 0; i < sizeY; ++i)
-        {
-            for (SizeT j = 0; j < sizeX; ++j)
-            {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    Func(this->members[i][j], mat.At(j, i), j, i);
-                }
-                else
-                {
-                    Func(this->members[i][j], mat.At(j, i));
-                }
+                Func(this->At(j, i), j, i);
             }
         }
     }
