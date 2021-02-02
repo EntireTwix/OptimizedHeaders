@@ -37,85 +37,33 @@ public:
         return &members[y][x];
     }
 
-    //Transform functions
-    template <bool CORDS_PARAMS_FLAG = false>
-    constexpr FastMat Transform(const auto &Func) const
+    template <typename Function>
+    constexpr Mat Transform(Function&& Func) const
     {
-        FastMat res;
-        for (size_t i = 0; i < H; ++i)
+        Mat res(sizeX, sizeY);
+        for (SizeT i = 0; i < sizeY; ++i)
         {
-            for (size_t j = 0; j < W; ++j)
+            for (SizeT j = 0; j < sizeX; ++j)
             {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    res.members[i][j] = Func(this->members[i][j], j, i);
-                }
-                else
-                {
-                    res.members[i][j] = Func(this->members[i][j]);
-                }
-            }
-        }
-        return res;
-    }
-    template <bool CORDS_PARAMS_FLAG = false>
-    constexpr FastMat Transform(const auto &Func, const FastMat &mat) const
-    {
-        FastMat res;
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    res.members[i][j] = Func(this->members[i][j], mat.members[i][j], j, i);
-                }
-                else
-                {
-                    res.members[i][j] = Func(this->members[i][j], mat.members[i][j]);
-                }
+                res.At(j, i) = Func(this->At(j, i), j, i);
             }
         }
         return res;
     }
 
-    //ApplyFunction function
-    template <bool CORDS_PARAMS_FLAG = false>
-    constexpr void ApplyFunction(const auto &Func)
+    template <typename Function>
+    constexpr void ApplyFunction(Function&& Func)
     {
-        for (size_t i = 0; i < H; ++i)
+        for (SizeT i = 0; i < sizeY; ++i)
         {
-            for (size_t j = 0; j < W; ++j)
+            for (SizeT j = 0; j < sizeX; ++j)
             {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    Func(this->members[i][j], j, i);
-                }
-                else
-                {
-                    Func(this->members[i][j]);
-                }
+                Func(this->At(j, i), j, i);
             }
         }
     }
-    template <bool CORDS_PARAMS_FLAG = false>
-    constexpr void ApplyFunction(const auto &Func, const FastMat &mat)
-    {
-        for (size_t i = 0; i < H; ++i)
-        {
-            for (size_t j = 0; j < W; ++j)
-            {
-                if constexpr (CORDS_PARAMS_FLAG)
-                {
-                    Func(this->members[i][j], mat.members[i][j], j, i);
-                }
-                else
-                {
-                    Func(this->members[i][j], mat.members[i][j]);
-                }
-            }
-        }
-    }
+
+    
     friend std::ostream &operator<<(std::ostream &os, const FastMat &mat)
     {
         for (size_t i = 0; i < mat.SizeY(); ++i)
