@@ -23,7 +23,7 @@ public:
     explicit Mat(SizeT, SizeT);
 
     template <typename... Params>
-    explicit Mat(SizeT w, SizeT h, Params &&... membs) : sizeX(w), sizeY(h)
+    explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h)
     {
         if (sizeof...(membs) > (Area()))
             throw std::invalid_argument("dimensions of matrix must match number of values");
@@ -86,25 +86,8 @@ public:
         return os;
     }
 
-    std::string Save() const
-    {
-        std::string res = "(";
-        res += std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',';
-        for (SizeT i = 0; i < SizeY(); ++i)
-        {
-            for (SizeT j = 0; j < SizeX(); ++j)
-            {
-                res += std::to_string(this->At(j, i)) + ',';
-            }
-        }
-        //removing last ,
-        res.resize(res.size() - 1);
-        res += ");";
-        return res;
-    }
-
     template <typename Function>
-    Mat Transform(Function&& Func) const
+    Mat Transform(Function &&Func) const
     {
         Mat res(sizeX, sizeY);
         for (SizeT i = 0; i < sizeY; ++i)
@@ -118,7 +101,7 @@ public:
     }
 
     template <typename Function>
-    void ApplyFunction(Function&& Func)
+    void ApplyFunction(Function &&Func)
     {
         for (SizeT i = 0; i < sizeY; ++i)
         {
