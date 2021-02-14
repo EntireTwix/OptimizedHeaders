@@ -13,26 +13,30 @@ class Mat
 {
 private:
     Type *members = nullptr;
-    const SizeT sizeY, sizeX;
-    const size_t area;
+    SizeT sizeY = 0, sizeX = 0;
+    size_t area;
 
 public:
     using type = Type;
     using storage_type = SizeT;
 
     Mat() = default;
-    explicit Mat(SizeT, SizeT);
+    explicit Mat(SizeT, SizeT) noexcept;
 
     template <typename... Params>
-    explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h), area(w * h)
+    explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h)
     {
         if (sizeof...(membs) > (area))
+        {
             throw std::invalid_argument("dimensions of matrix must match number of values");
+        }
         members = new Type[area]{membs...};
     }
 
-    Mat(const Mat &);
-    Mat(Mat &&);
+    Mat(const Mat &) noexcept;
+    Mat(Mat &&) noexcept;
+    Mat operator=(const Mat &) noexcept;
+    Mat operator=(Mat &&) noexcept;
 
     Type &At(SizeT, SizeT);
     Type *AtP(SizeT, SizeT);
@@ -42,37 +46,36 @@ public:
     Type FastAt(SizeT) const;
     Type *FastAtP(SizeT);
 
-    SizeT SizeX() const;
-    SizeT SizeY() const;
-    auto Area() const;
+    SizeT SizeX() const noexcept;
+    SizeT SizeY() const noexcept;
+    size_t Area() const noexcept;
 
     Mat Dot(const Mat &) const;
-    Mat Distribute(const Mat &) const;
 
     Mat operator+(const Mat &) const;
-    Mat operator+(const Type &) const;
+    Mat operator+(const Type &) const noexcept;
     Mat operator+=(const Mat &);
-    Mat operator+=(const Type &);
+    Mat operator+=(const Type &) noexcept;
 
     Mat operator-(const Mat &) const;
-    Mat operator-(const Type &) const;
+    Mat operator-(const Type &) const noexcept;
     Mat operator-=(const Mat &);
-    Mat operator-=(const Type &);
+    Mat operator-=(const Type &) noexcept;
 
     Mat operator*(const Mat &) const;
-    Mat operator*(const Type &) const;
+    Mat operator*(const Type &) const noexcept;
     Mat operator*=(const Mat &);
-    Mat operator*=(const Type &);
+    Mat operator*=(const Type &) noexcept;
 
     Mat operator/(const Mat &) const;
-    Mat operator/(const Type &) const;
+    Mat operator/(const Type &) const noexcept;
     Mat operator/=(const Mat &);
-    Mat operator/=(const Type &);
+    Mat operator/=(const Type &) noexcept;
 
-    Type *begin() { return &members[0]; }
-    Type *end() { return &members[area]; }
+    Type *begin() noexcept { return &members[0]; }
+    Type *end() noexcept { return &members[area]; }
 
-    friend std::ostream &operator<<(std::ostream &os, const Mat &mat)
+    friend std::ostream &operator<<(std::ostream &os, const Mat &mat) noexcept
     {
         for (SizeT i = 0; i < mat.SizeY(); ++i)
         {
@@ -111,18 +114,17 @@ public:
         }
     }
 
-    ~Mat();
+    ~Mat() noexcept;
 };
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
+inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) noexcept : sizeX(w), sizeY(h)
 {
     members = new Type[area]{};
 }
 
-//copy
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
+inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat) noexcept
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
@@ -137,12 +139,53 @@ inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
     }
 }
 
-//move
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat) : sizeX(mat.sizeX), sizeY(mat.sizeY), area(mat.area)
+inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat) noexcept
 {
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    area = mat.area;
     members = mat.members;
     mat.members = nullptr;
+    mat.sizeX = mat.sizeY = mat.area = 0;
+}
+
+template <typename Type, SizeType SizeT>
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat) noexcept
+{
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    area = mat.area;
+    if (members)
+    {
+        delete[] members;
+        members = nullptr;
+    }
+    if (area)
+    {
+        members = new Type[area]{Type()};
+    }
+    for (size_t i = 0; i < area; ++i)
+    {
+        FastAt(i) = mat.FastAt(i);
+    }
+    return *this;
+}
+
+template <typename Type, SizeType SizeT>
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat) noexcept
+{
+    sizeX = mat.sizeX;
+    sizeY = mat.sizeY;
+    area = mat.area;
+    if (members)
+    {
+        delete[] members;
+    }
+    members = mat.members;
+    mat.members = nullptr;
+    mat.sizeX = mat.sizeY = mat.area = 0;
+    return *this;
 }
 
 template <typename Type, SizeType SizeT>
@@ -194,19 +237,21 @@ inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
 }
 
 template <typename Type, SizeType SizeT>
-inline SizeT Mat<Type, SizeT>::SizeX() const { return sizeX; }
+inline SizeT Mat<Type, SizeT>::SizeX() const noexcept { return sizeX; }
 
 template <typename Type, SizeType SizeT>
-inline SizeT Mat<Type, SizeT>::SizeY() const { return sizeY; }
+inline SizeT Mat<Type, SizeT>::SizeY() const noexcept { return sizeY; }
 
 template <typename Type, SizeType SizeT>
-inline auto Mat<Type, SizeT>::Area() const { return area; }
+inline size_t Mat<Type, SizeT>::Area() const noexcept { return area; }
 
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 {
     if (!((sizeX == mat.sizeY) || (sizeY == mat.sizeX)))
+    {
         throw std::invalid_argument("Dot: dimensions invalid");
+    }
     if (sizeX == mat.sizeY)
     {
         //std::cout << "Beep\n";
@@ -242,20 +287,6 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::Distribute(const Mat<Type, SizeT> &mat) const
-{
-    Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
-    {
-        for (size_t j = 0; j < mat.area; ++j)
-        {
-            res.FastAt(i) += FastAt(i) * mat.FastAt(j);
-        }
-    }
-    return res;
-}
-
-template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat) const
 {
     if (area != mat.area)
@@ -269,7 +300,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < area; ++i)
@@ -291,7 +322,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value)
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value) noexcept
 {
     for (size_t i = 0; i < area; ++i)
     {
@@ -314,7 +345,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < area; ++i)
@@ -337,7 +368,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value)
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value) noexcept
 {
     for (size_t i = 0; i < area; ++i)
     {
@@ -360,7 +391,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < area; ++i)
@@ -383,7 +414,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value)
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value) noexcept
 {
     for (size_t i = 0; i < area; ++i)
     {
@@ -406,7 +437,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < area; ++i)
@@ -429,7 +460,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value) noexcept
 {
     for (size_t i = 0; i < area; ++i)
     {
@@ -439,7 +470,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::~Mat()
+inline Mat<Type, SizeT>::~Mat() noexcept
 {
     delete[] members;
 }
@@ -451,4 +482,4 @@ using MLMat = Mat<float, uint16_t>;
 using ImgMat = Mat<uint8_t, uint16_t>;
 
 template <typename T>
-concept Matrix = std::is_base_of<Mat<typename T::type, typename T::storage_type>, T>::value;
+concept Matrix = std::is_base_of_v<Mat<typename T::type, typename T::storage_type>, T>;
