@@ -114,7 +114,7 @@ public:
         }
     }
 
-    std::string Save() const
+    std::string Save() const noexcept
     {
         std::string res('(' + std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',');
         for (size_t i = 0; i < area; ++i)
