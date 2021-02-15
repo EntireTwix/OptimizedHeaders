@@ -21,7 +21,7 @@ public:
     using storage_type = SizeT;
 
     Mat() = default;
-    explicit Mat(SizeT, SizeT) noexcept;
+    explicit Mat(SizeT, SizeT);
 
     template <typename... Params>
     explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h)
@@ -118,7 +118,7 @@ public:
 };
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) noexcept : sizeX(w), sizeY(h)
+inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
 {
     members = new Type[area]{};
 }
