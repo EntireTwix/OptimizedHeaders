@@ -24,7 +24,7 @@ public:
     explicit Mat(SizeT, SizeT);
 
     template <typename... Params>
-    explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h)
+    explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h), area(w * h)
     {
         if (sizeof...(membs) > (area))
         {
