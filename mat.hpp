@@ -114,6 +114,17 @@ public:
         }
     }
 
+    std::string Save() const
+    {
+        std::string res('(' + std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',');
+        for (size_t i = 0; i < area; ++i)
+        {
+            res += std::to_string(FastAt(i)) + ',';
+        }
+        res.back() = ')';
+        return res;
+    }
+
     ~Mat() noexcept;
 };
 
