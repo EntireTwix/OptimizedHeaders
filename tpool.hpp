@@ -60,16 +60,15 @@ public:
                     while (paused && !stopped)
                         ;
 
+                    threadLocks[i].lock();
+                    if (!paused && job)
                     {
-                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
-                        if (!paused && job)
-                        {
-                            //do work
-                            job();
-                            //pop job because its done
-                            jobs[i].pop();
-                        }
+                        //do work
+                        job();
+                        //pop job because its done
+                        jobs[i].pop();
                     }
+                    threadLocks[i].unlock();
                 }
             });
     }
@@ -106,15 +105,18 @@ public:
         }
         return sum;
     }
-    uint8_t Workers() const
+    int Workers() const
     {
         return threadCount;
     }
 
+    //this function should be called when you want to use the thread pool
     void Start()
     {
         paused = false;
     }
+
+    //this function should be called when you're done using the thread pool
     void Pause()
     {
         paused = true;
