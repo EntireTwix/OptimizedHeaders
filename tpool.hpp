@@ -10,7 +10,7 @@ template <uint_fast8_t threads = 0>
 class ThreadPool final
 {
 private:
-    bool stopped = false, paused = true;
+    volatile bool stopped = false, paused = true;
 
     std::mutex *threadLocks;                 //lock for using jobs que
     std::condition_variable *jobListener;    //listener for waiting for jobs update
@@ -45,11 +45,15 @@ public:
                     {
                         std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //grab ownership
                         //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
+                        //std::cout << "Thread " + std::to_string(i) + " is waiting for new job\n";
                         if (jobs[i].empty() && !stopped) //wait for new jobs
                         {
                             jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
-                            //std::cout << "Thread " + std::to_string(i) + " is setting up a job\n";
-                            job = std::move(jobs[i].front()); //set up new job
+                            if (!jobs[i].empty())
+                            {
+                                //std::cout << "Thread " + std::to_string(i) + " is setting up a job\n";
+                                job = std::move(jobs[i].front()); //set up new job
+                            }
                         }
                         //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
                     }
@@ -58,21 +62,19 @@ public:
                     while (paused && !stopped)
                         ;
 
+                    //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
+                    threadLocks[i].lock();
+                    if (!paused && !stopped) //thread shouldnt continue to work if going out of scope
                     {
-                        //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
-                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
-                        if (!paused && job)
-                        {
+                        //std::cout << "Thread " + std::to_string(i) + " has begon working\n";
+                        job(); //do work
+                        //std::cout << "Thread " + std::to_string(i) + " has stopped working\n";
 
-                            //std::cout << "Thread " + std::to_string(i) + " has begon working\n";
-                            job(); //do work
-                            //std::cout << "Thread " + std::to_string(i) + " has stopped working\n";
-
-                            jobs[i].pop(); //pop job because its done
-                            //std::cout << "Thread " + std::to_string(i) + " has popped its job\n";
-                        }
-                        //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
+                        jobs[i].pop(); //pop job because its done
+                        //std::cout << "Thread " + std::to_string(i) + " has popped its job\n";
                     }
+                    threadLocks[i].unlock();
+                    //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
                 }
             });
     }
@@ -92,6 +94,7 @@ public:
                 index = i;
                 if (!smallest) //auto-assign if smallest is 0
                 {
+                    //std::cout << "AddTask has given up lock of Thread " + std::to_string(i) + '\n';
                     break;
                 }
             }
