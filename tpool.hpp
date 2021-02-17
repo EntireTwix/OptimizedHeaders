@@ -28,9 +28,9 @@ private:
     }
 
 public:
-    ThreadPool()
+    ThreadPool() noexcept
     {
-        threadCount = threads ? threads : std::thread::hardware_concurrency();
+        threadCount = threads + (!threads * std::thread::hardware_concurrency()); //branchless turnary
         threadLocks = new std::mutex[threadCount];
         jobListener = new std::condition_variable[threadCount];
         jobs = new std::queue<std::function<void()>>[threadCount];
@@ -39,52 +39,49 @@ public:
         for (uint_fast8_t i = 0; i < threadCount; ++i)
             workers[i] = std::thread([this, i]() {
                 std::function<void()> job;
-
                 while (!stopped)
                 {
-                    //grab ownership
                     {
-                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
-
-                        //wait for new jobs
-                        if (jobs[i].empty() && !stopped)
+                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //grab ownership
+                        if (jobs[i].empty() && !stopped)                         //wait for new jobs
                         {
                             jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
                         }
-
-                        //set up new job
-                        job = jobs[i].front();
+                        job = jobs[i].front(); //set up new job
                     }
 
                     //wait while paused
                     while (paused && !stopped)
                         ;
 
-                    threadLocks[i].lock();
-                    if (!paused && job)
                     {
-                        //do work
-                        job();
-                        //pop job because its done
-                        jobs[i].pop();
+                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
+                        if (!paused && job)
+                        {
+                            job();         //do work
+                            jobs[i].pop(); //pop job because its done
+                        }
                     }
-                    threadLocks[i].unlock();
                 }
             });
     }
 
-    void AddTask(std::function<void()> &&func)
+    void AddTask(std::function<void()> &&func) noexcept
     {
         //finding worker with least jobs
         size_t smallest = -1;
         uint_fast8_t index;
         for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
-            std::unique_lock<std::mutex> jobsAccess{threadLocks[index]};
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
             if (jobs[i].size() < smallest)
             {
                 smallest = jobs[i].size();
                 index = i;
+                if (!smallest) //auto-assign if smallest is 0
+                {
+                    break;
+                }
             }
         }
 
@@ -95,7 +92,7 @@ public:
         }
         jobListener[index].notify_all();
     }
-    size_t Jobs() const
+    size_t Jobs() const noexcept
     {
         size_t sum = 0;
         for (uint_fast8_t i = 0; i < threadCount; ++i)
@@ -105,6 +102,19 @@ public:
         }
         return sum;
     }
+    bool Working() const noexcept
+    {
+        for (uint_fast8_t i = 0; i < threadCount; ++i)
+        {
+            std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
+            if (jobs[i].size())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     int Workers() const noexcept
     {
         return threadCount;
@@ -139,10 +149,10 @@ public:
 };
 
 template <typename ForwardIt, typename UnaryFunction, uint_fast8_t threads>
-void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction f, ThreadPool<threads> &engine)
+void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPool<threads> &engine)
 {
-    engine.Start();
     size_t step_sz = (last - first) / engine.Workers();
+    step_sz += (bool)((last - first) % engine.Workers()); //branchless correction for remainder in step size
     if (!step_sz)
     {
         for (ForwardIt i = first; i < last; ++i)
@@ -161,8 +171,8 @@ void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction f, ThreadPool<
             });
         }
     }
-    while (engine.Jobs())
+    engine.Start();
+    while (engine.Working())
         ;
-
     engine.Pause();
 }
