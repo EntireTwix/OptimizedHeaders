@@ -169,7 +169,6 @@ template <typename ForwardIt, typename UnaryFunction, uint_fast8_t threads>
 void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPool<threads> &engine)
 {
     size_t step_sz = (last - first) / engine.Workers();
-    step_sz += (bool)((last - first) % engine.Workers()); //branchless correction for remainder in step size
     if (!step_sz)
     {
         for (ForwardIt i = first; i < last; ++i)
@@ -181,6 +180,7 @@ void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPoo
     }
     else
     {
+        step_sz += (bool)((last - first) % engine.Workers()); //branchless correction for remainder in step size
         for (ForwardIt i = first; i < last; i += step_sz)
         {
             engine.AddTask([i, &step_sz, &f]() {
