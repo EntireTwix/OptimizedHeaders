@@ -136,8 +136,6 @@ public:
     }
 };
 
-#include <algorithm>
-
 template <typename ForwardIt, typename UnaryFunction2, uint_fast8_t threads>
 void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction2 f, ThreadPool<threads> &engine)
 {
