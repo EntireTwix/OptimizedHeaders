@@ -43,34 +43,38 @@ public:
                 while (!stopped)
                 {
                     //grab ownership
-                    std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
-
-                    //wait for new jobs
-                    if (jobs[i].empty() && !stopped)
                     {
-                        jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
-                    }
+                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
 
-                    //set up new job
-                    job = jobs[i].front();
+                        //wait for new jobs
+                        if (jobs[i].empty() && !stopped)
+                        {
+                            jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
+                        }
+
+                        //set up new job
+                        job = jobs[i].front();
+                    }
 
                     //wait while paused
                     while (paused && !stopped)
-                    {
-                    }
+                        ;
 
-                    if (!paused && job)
                     {
-                        //do work
-                        job();
-                        //pop job because its done
-                        jobs[i].pop();
+                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
+                        if (!paused && job)
+                        {
+                            //do work
+                            job();
+                            //pop job because its done
+                            jobs[i].pop();
+                        }
                     }
                 }
             });
     }
 
-    void AddTask(std::function<void()>&& func)
+    void AddTask(std::function<void()> &&func)
     {
         //finding worker with least jobs
         size_t smallest = -1;
