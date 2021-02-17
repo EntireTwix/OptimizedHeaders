@@ -136,8 +136,8 @@ public:
     }
 };
 
-template <typename ForwardIt, typename UnaryFunction2, uint_fast8_t threads>
-void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction2 f, ThreadPool<threads> &engine)
+template <typename ForwardIt, typename UnaryFunction, uint_fast8_t threads>
+void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction f, ThreadPool<threads> &engine)
 {
     engine.Start();
     size_t step_sz = (last - first) / engine.Workers();
