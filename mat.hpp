@@ -13,7 +13,7 @@ class Mat
 {
 private:
     Type *members = nullptr;
-    SizeT sizeY = 0, sizeX = 0;
+    SizeT sizeY, sizeX;
     size_t area;
 
 public:
