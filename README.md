@@ -16,7 +16,3 @@ a lightweight LOCKING thread pool, with INDIVIDUAL QUEUES per thread. It works b
 stpool.h
 -----
 a lightweight LOCK-FREE SHARED QUEUE thread pool, utilizing atomic_queue.h from user from https://github.com/max0x7ba. This thread pool is faster then tpool.h if the distribution of work is nonuniform, otherwise its on average 15-25% slower (for synthetic workloads)
-
-CUDA
------
-CUDA variants of these headers
