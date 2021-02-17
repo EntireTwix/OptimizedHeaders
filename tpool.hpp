@@ -23,6 +23,7 @@ private:
         stopped = true;
         for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
+            //std::cout << "Stopping Thread " + std::to_string(i) + '\n';
             jobListener[i].notify_one();
         }
     }
@@ -43,11 +44,14 @@ public:
                 {
                     {
                         std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //grab ownership
-                        if (jobs[i].empty() && !stopped)                         //wait for new jobs
+                        //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
+                        if (jobs[i].empty() && !stopped) //wait for new jobs
                         {
                             jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
+                            //std::cout << "Thread " + std::to_string(i) + " is setting up a job\n";
+                            job = std::move(jobs[i].front()); //set up new job
                         }
-                        job = jobs[i].front(); //set up new job
+                        //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
                     }
 
                     //wait while paused
@@ -55,12 +59,19 @@ public:
                         ;
 
                     {
+                        //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
                         std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
                         if (!paused && job)
                         {
-                            job();         //do work
+
+                            //std::cout << "Thread " + std::to_string(i) + " has begon working\n";
+                            job(); //do work
+                            //std::cout << "Thread " + std::to_string(i) + " has stopped working\n";
+
                             jobs[i].pop(); //pop job because its done
+                            //std::cout << "Thread " + std::to_string(i) + " has popped its job\n";
                         }
+                        //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
                     }
                 }
             });
@@ -73,6 +84,7 @@ public:
         uint_fast8_t index;
         for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
+            //std::cout << "AddTask has grabbed lock of Thread " + std::to_string(i) + '\n';
             std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
             if (jobs[i].size() < smallest)
             {
@@ -83,12 +95,14 @@ public:
                     break;
                 }
             }
+            //std::cout << "AddTask has given up lock of Thread " + std::to_string(i) + '\n';
         }
 
         //adding to its job queue
         {
             std::unique_lock<std::mutex> jobsAccess{threadLocks[index]};
             jobs[index].push(func);
+            //std::cout << "Job Added to Thread " + std::to_string(index) + '\n';
         }
         jobListener[index].notify_all();
     }
@@ -123,12 +137,14 @@ public:
     //this function should be called when you want to use the thread pool
     void Start() noexcept
     {
+        //std::cout << "Starting Threadpool\n";
         paused = false;
     }
 
     //this function should be called when you're done using the thread pool
     void Pause() noexcept
     {
+        //std::cout << "Pausing Threadpool\n";
         paused = true;
     }
 
@@ -136,6 +152,7 @@ public:
     {
         Stop();
         //closing threads properly
+        //std::cout << "Deconstructing\n";
         for (size_t i = 0; i < threadCount; ++i)
         {
             if (workers[i].joinable())
