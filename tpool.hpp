@@ -105,19 +105,19 @@ public:
         }
         return sum;
     }
-    int Workers() const
+    int Workers() const noexcept
     {
         return threadCount;
     }
 
     //this function should be called when you want to use the thread pool
-    void Start()
+    void Start() noexcept
     {
         paused = false;
     }
 
     //this function should be called when you're done using the thread pool
-    void Pause()
+    void Pause() noexcept
     {
         paused = true;
     }
