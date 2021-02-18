@@ -61,19 +61,21 @@ public:
                     while (paused && !stopped)
                         ;
 
-                    //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
-                    threadLocks[i].lock();
-                    if (!paused && !stopped) //thread shouldnt continue to work if going out of scope
+                    if (!stopped)
                     {
-                        //std::cout << "Thread " + std::to_string(i) + " has begon working\n";
-                        job(); //do work
-                        //std::cout << "Thread " + std::to_string(i) + " has stopped working\n";
+                        //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
+                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //grab ownership
+                        if (!paused && !stopped)                                 //thread shouldnt continue to work if going out of scope
+                        {
+                            //std::cout << "Thread " + std::to_string(i) + " has begon working\n";
+                            job(); //do work
+                            //std::cout << "Thread " + std::to_string(i) + " has stopped working\n";
 
-                        jobs[i].pop(); //pop job because its done
-                        //std::cout << "Thread " + std::to_string(i) + " has popped its job\n";
+                            jobs[i].pop(); //pop job because its done
+                            //std::cout << "Thread " + std::to_string(i) + " has popped its job\n";
+                        }
+                        //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
                     }
-                    threadLocks[i].unlock();
-                    //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
                 }
             });
     }
