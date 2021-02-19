@@ -92,9 +92,9 @@ public:
     std::string Save() const noexcept
     {
         std::string res('(' + std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',');
-        for (Type *i = begin(); i < end(); ++i)
+        for (const Type &i : *this)
         {
-            res += std::to_string(*i) + ',';
+            res += std::to_string(i) + ',';
         }
         res.back() = ')';
         return res;
@@ -268,7 +268,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat) const
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator+: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -292,7 +292,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat)
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator+=: parameter must match the dimensions of this");
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
@@ -313,7 +313,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value) noexcept
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat) const
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator-: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -337,7 +337,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat)
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator-=: parameter must match the dimensions of this");
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
@@ -359,7 +359,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value) noexcept
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat) const
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator*: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -383,7 +383,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat)
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator*=: parameter must match the dimensions of this");
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
@@ -405,7 +405,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value) noexcept
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat) const
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator/: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -429,7 +429,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat)
 {
-    if (sizeX * sizeY != mat.sizeX * sizeY)
+    if ((sizeX * sizeY) != (mat.sizeX * mat.sizeY))
         throw std::invalid_argument("operator/=: parameter must match the dimensions of this");
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
