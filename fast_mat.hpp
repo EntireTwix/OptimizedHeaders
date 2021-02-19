@@ -14,8 +14,10 @@ public:
     constexpr size_t SizeX() const { return W; }
     constexpr size_t SizeY() const { return H; }
 
-    T *begin() { return &members[0][0]; }
-    T *end() { return &members[H][W]; }
+    T *begin() noexcept { return &members[0][0]; }
+    T *end() noexcept { return &members[H][W]; }
+    const T *begin() const noexcept { return &members[0][0]; }
+    const T *end() const noexcept { return &members[H][W]; }
 
     //At functions
     T &At(size_t x, size_t y)
