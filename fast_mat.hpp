@@ -14,13 +14,13 @@ public:
     constexpr size_t SizeX() const noexcept { return W; }
     constexpr size_t SizeY() const noexcept { return H; }
 
-    T *begin() noexcept { return &members[0][0]; }
-    T *end() noexcept { return &members[H][W]; }
-    const T *begin() const noexcept { return &members[0][0]; }
-    const T *end() const noexcept { return &members[H][W]; }
+    constexpr T *begin() noexcept { return &members[0][0]; }
+    constexpr T *end() noexcept { return &members[H - 1][W - 1]; }
+    constexpr const T *begin() const noexcept { return &members[0][0]; }
+    constexpr const T *end() const noexcept { return &members[H - 1][W - 1]; }
 
     //At functions
-    T &At(size_t x, size_t y)
+    constexpr T &At(size_t x, size_t y)
     {
         if ((x >= W) || (y >= H))
             throw std::out_of_range("&At: out of range");
@@ -32,7 +32,7 @@ public:
             throw std::out_of_range(" At: out of range");
         return members[y][x];
     }
-    T *AtP(size_t x, size_t y)
+    constexpr T *AtP(size_t x, size_t y)
     {
         if ((x >= W) || (y >= H))
             throw std::out_of_range("*At: out of range");
