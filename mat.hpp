@@ -14,7 +14,6 @@ class Mat
 private:
     Type *members = nullptr;
     SizeT sizeY, sizeX;
-    size_t area;
 
 public:
     using type = Type;
@@ -24,18 +23,18 @@ public:
     explicit Mat(SizeT, SizeT);
 
     template <typename... Params>
-    explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h), area(w * h)
+    explicit Mat(SizeT w, SizeT h, Params &&...membs) : sizeX(w), sizeY(h)
     {
-        if (sizeof...(membs) > (area))
+        if (sizeof...(membs) > (w * h))
         {
             throw std::invalid_argument("dimensions of matrix must match number of values");
         }
-        members = new Type[area]{membs...};
+        members = new Type[w * h]{membs...};
     }
 
-    Mat(const Mat &) noexcept;
+    Mat(const Mat &);
     Mat(Mat &&) noexcept;
-    Mat operator=(const Mat &) noexcept;
+    Mat operator=(const Mat &);
     Mat operator=(Mat &&) noexcept;
 
     Type &At(SizeT, SizeT);
@@ -48,7 +47,6 @@ public:
 
     SizeT SizeX() const noexcept;
     SizeT SizeY() const noexcept;
-    size_t Area() const noexcept;
 
     Mat Dot(const Mat &) const;
 
@@ -73,7 +71,9 @@ public:
     Mat operator/=(const Type &) noexcept;
 
     Type *begin() noexcept { return &members[0]; }
-    Type *end() noexcept { return &members[area]; }
+    Type *end() noexcept { return &members[sizeX * sizeY]; }
+    const Type *begin() const noexcept { return &members[0]; }
+    const Type *end() const noexcept { return &members[sizeX * sizeY]; }
     Type *&data() noexcept { return members; } //dangerous
 
     friend std::ostream &operator<<(std::ostream &os, const Mat &mat) noexcept
@@ -89,38 +89,12 @@ public:
         return os;
     }
 
-    template <typename Function>
-    Mat Transform(Function &&Func) const
-    {
-        Mat res(sizeX, sizeY);
-        for (SizeT i = 0; i < sizeY; ++i)
-        {
-            for (SizeT j = 0; j < sizeX; ++j)
-            {
-                res.At(j, i) = Func(this->At(j, i), j, i);
-            }
-        }
-        return res;
-    }
-
-    template <typename Function>
-    void ApplyFunction(Function &&Func)
-    {
-        for (SizeT i = 0; i < sizeY; ++i)
-        {
-            for (SizeT j = 0; j < sizeX; ++j)
-            {
-                Func(this->At(j, i), j, i);
-            }
-        }
-    }
-
     std::string Save() const noexcept
     {
         std::string res('(' + std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',');
-        for (size_t i = 0; i < area; ++i)
+        for (Type *i = begin(); i < end(); ++i)
         {
-            res += std::to_string(FastAt(i)) + ',';
+            res += std::to_string(*i) + ',';
         }
         res.back() = ')';
         return res;
@@ -130,22 +104,21 @@ public:
 };
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h), area(w * h)
+inline Mat<Type, SizeT>::Mat(SizeT w, SizeT h) : sizeX(w), sizeY(h)
 {
-    members = new Type[area]{};
+    members = new Type[w * h]{};
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat) noexcept
+inline Mat<Type, SizeT>::Mat(const Mat<Type, SizeT> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    area = mat.area;
-    if (area)
+    if (sizeX * sizeY)
     {
-        members = new Type[area]{Type()};
+        members = new Type[sizeX * sizeY]{Type()};
     }
-    for (size_t i = 0; i < mat.area; ++i)
+    for (size_t i = 0; i < mat.sizeX * sizeY; ++i)
     {
         FastAt(i) = mat.FastAt(i);
     }
@@ -156,28 +129,26 @@ inline Mat<Type, SizeT>::Mat(Mat<Type, SizeT> &&mat) noexcept
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    area = mat.area;
     members = mat.members;
     mat.members = nullptr;
-    mat.sizeX = mat.sizeY = mat.area = 0;
+    mat.sizeX = mat.sizeY = 0;
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat) noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(const Mat<Type, SizeT> &mat)
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    area = mat.area;
     if (members)
     {
         delete[] members;
         members = nullptr;
     }
-    if (area)
+    if (sizeX * sizeY)
     {
-        members = new Type[area]{Type()};
+        members = new Type[sizeX * sizeY]{Type()};
     }
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         FastAt(i) = mat.FastAt(i);
     }
@@ -189,14 +160,13 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator=(Mat<Type, SizeT> &&mat) noex
 {
     sizeX = mat.sizeX;
     sizeY = mat.sizeY;
-    area = mat.area;
     if (members)
     {
         delete[] members;
     }
     members = mat.members;
     mat.members = nullptr;
-    mat.sizeX = mat.sizeY = mat.area = 0;
+    mat.sizeX = mat.sizeY = 0;
     return *this;
 }
 
@@ -227,7 +197,7 @@ inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
 template <typename Type, SizeType SizeT>
 inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
 {
-    if (index >= area)
+    if (index >= sizeX * sizeY)
         throw std::out_of_range("FastAt: index out of range");
     return members[index];
 }
@@ -235,7 +205,7 @@ inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
 template <typename Type, SizeType SizeT>
 inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
 {
-    if (index >= area)
+    if (index >= sizeX * sizeY)
         throw std::out_of_range("FastAt: index out of range");
     return members[index];
 }
@@ -243,7 +213,7 @@ inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
 template <typename Type, SizeType SizeT>
 inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
 {
-    if (index >= area)
+    if (index >= sizeX * sizeY)
         throw std::out_of_range("FastAt: index out of range");
     return &members[index];
 }
@@ -253,9 +223,6 @@ inline SizeT Mat<Type, SizeT>::SizeX() const noexcept { return sizeX; }
 
 template <typename Type, SizeType SizeT>
 inline SizeT Mat<Type, SizeT>::SizeY() const noexcept { return sizeY; }
-
-template <typename Type, SizeType SizeT>
-inline size_t Mat<Type, SizeT>::Area() const noexcept { return area; }
 
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
@@ -301,10 +268,10 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat) const
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator+: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] + mat.members[i];
     }
@@ -315,7 +282,7 @@ template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] + value;
     }
@@ -325,9 +292,9 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat)
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator+=: parameter must match the dimensions of this");
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] += mat.members[i];
     }
@@ -336,7 +303,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value) noexcept
 {
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] += value;
     }
@@ -346,10 +313,10 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value) noexcept
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat) const
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator-: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] - mat.members[i];
     }
@@ -360,7 +327,7 @@ template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] - value;
     }
@@ -370,9 +337,9 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat)
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator-=: parameter must match the dimensions of this");
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] -= mat.members[i];
     }
@@ -382,7 +349,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value) noexcept
 {
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] -= value;
     }
@@ -392,10 +359,10 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value) noexcept
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat) const
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator*: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] * mat.members[i];
     }
@@ -406,7 +373,7 @@ template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] * value;
     }
@@ -416,9 +383,9 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat)
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator*=: parameter must match the dimensions of this");
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] *= mat.members[i];
     }
@@ -428,7 +395,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value) noexcept
 {
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] *= value;
     }
@@ -438,10 +405,10 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value) noexcept
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat) const
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator/: parameter must match the dimensions of this");
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] / mat.members[i];
     }
@@ -452,7 +419,7 @@ template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const noexcept
 {
     Mat res(sizeX, sizeY);
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         res.members[i] = this->members[i] / value;
     }
@@ -462,9 +429,9 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const noe
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat)
 {
-    if (area != mat.area)
+    if (sizeX * sizeY != mat.sizeX * sizeY)
         throw std::invalid_argument("operator/=: parameter must match the dimensions of this");
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] /= mat.members[i];
     }
@@ -474,7 +441,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat
 template <typename Type, SizeType SizeT>
 inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value) noexcept
 {
-    for (size_t i = 0; i < area; ++i)
+    for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
         this->members[i] /= value;
     }
