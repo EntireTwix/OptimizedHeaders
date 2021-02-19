@@ -74,6 +74,7 @@ public:
 
     Type *begin() noexcept { return &members[0]; }
     Type *end() noexcept { return &members[area]; }
+    Type *&data() noexcept { return members; } //dangerous
 
     friend std::ostream &operator<<(std::ostream &os, const Mat &mat) noexcept
     {
