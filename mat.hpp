@@ -41,9 +41,9 @@ public:
     Type *AtP(SizeT, SizeT);
     Type At(SizeT, SizeT) const;
 
-    Type &FastAt(SizeT);
-    Type FastAt(SizeT) const;
-    Type *FastAtP(SizeT);
+    Type &FastAt(size_t);
+    Type FastAt(size_t) const;
+    Type *FastAtP(size_t);
 
     SizeT SizeX() const noexcept;
     SizeT SizeY() const noexcept;
@@ -195,7 +195,7 @@ inline Type Mat<Type, SizeT>::At(SizeT x, SizeT y) const //indexing matrix
 }
 
 template <typename Type, SizeType SizeT>
-inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
+inline Type &Mat<Type, SizeT>::FastAt(size_t index)
 {
     if (index >= sizeX * sizeY)
         throw std::out_of_range("FastAt: index out of range");
@@ -203,7 +203,7 @@ inline Type &Mat<Type, SizeT>::FastAt(SizeT index)
 }
 
 template <typename Type, SizeType SizeT>
-inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
+inline Type Mat<Type, SizeT>::FastAt(size_t index) const
 {
     if (index >= sizeX * sizeY)
         throw std::out_of_range("FastAt: index out of range");
@@ -211,7 +211,7 @@ inline Type Mat<Type, SizeT>::FastAt(SizeT index) const
 }
 
 template <typename Type, SizeType SizeT>
-inline Type *Mat<Type, SizeT>::FastAtP(SizeT index)
+inline Type *Mat<Type, SizeT>::FastAtP(size_t index)
 {
     if (index >= sizeX * sizeY)
         throw std::out_of_range("FastAt: index out of range");
