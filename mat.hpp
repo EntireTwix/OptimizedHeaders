@@ -457,8 +457,6 @@ inline Mat<Type, SizeT>::~Mat() noexcept
 using fMat = Mat<float>;
 using dMat = Mat<double>;
 using iMat = Mat<int>;
-using MLMat = Mat<float, uint16_t>;
-using ImgMat = Mat<uint8_t, uint16_t>;
 
 template <typename T>
 concept Matrix = std::is_base_of_v<Mat<typename T::type, typename T::storage_type>, T>;
