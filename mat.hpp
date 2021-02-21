@@ -6,6 +6,14 @@
 #include <type_traits>
 
 template <typename T>
+struct copy_fast : std::conditional<std::is_trivially_copyable_v<T>, T, const T &>
+{
+};
+
+template <typename T>
+using copy_fast_t = typename copy_fast<T>::type;
+
+template <typename T>
 concept SizeType = std::is_unsigned_v<T> &&std::is_integral_v<T>;
 
 template <typename Type = float, SizeType SizeT = size_t>
@@ -51,24 +59,24 @@ public:
     Mat Dot(const Mat &) const;
 
     Mat operator+(const Mat &) const;
-    Mat operator+(const Type &) const noexcept;
+    Mat operator+(copy_fast<Type>) const noexcept;
     Mat operator+=(const Mat &);
-    Mat operator+=(const Type &) noexcept;
+    Mat operator+=(copy_fast<Type>) noexcept;
 
     Mat operator-(const Mat &) const;
-    Mat operator-(const Type &) const noexcept;
+    Mat operator-(copy_fast<Type>) const noexcept;
     Mat operator-=(const Mat &);
-    Mat operator-=(const Type &) noexcept;
+    Mat operator-=(copy_fast<Type>) noexcept;
 
     Mat operator*(const Mat &) const;
-    Mat operator*(const Type &) const noexcept;
+    Mat operator*(copy_fast<Type>) const noexcept;
     Mat operator*=(const Mat &);
-    Mat operator*=(const Type &) noexcept;
+    Mat operator*=(copy_fast<Type>) noexcept;
 
     Mat operator/(const Mat &) const;
-    Mat operator/(const Type &) const noexcept;
+    Mat operator/(copy_fast<Type>) const noexcept;
     Mat operator/=(const Mat &);
-    Mat operator/=(const Type &) noexcept;
+    Mat operator/=(copy_fast<Type>) noexcept;
 
     Type *begin() noexcept { return &members[0]; }
     Type *end() noexcept { return &members[sizeX * sizeY]; }
@@ -92,7 +100,7 @@ public:
     std::string Save() const noexcept
     {
         std::string res('(' + std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',');
-        for (const Type &i : *this)
+        for (copy_fast<Type> i : *this)
         {
             res += std::to_string(i) + ',';
         }
@@ -279,7 +287,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(const Type &value) const noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+(copy_fast<Type> value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -301,7 +309,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(const Type &value) noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator+=(copy_fast<Type> value) noexcept
 {
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
@@ -324,7 +332,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(const Type &value) const noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-(copy_fast<Type> value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -347,7 +355,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(const Type &value) noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator-=(copy_fast<Type> value) noexcept
 {
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
@@ -370,7 +378,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(const Type &value) const noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*(copy_fast<Type> value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -393,7 +401,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(const Type &value) noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator*=(copy_fast<Type> value) noexcept
 {
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
@@ -416,7 +424,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Mat<Type, SizeT> &mat)
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(const Type &value) const noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/(copy_fast<Type> value) const noexcept
 {
     Mat res(sizeX, sizeY);
     for (size_t i = 0; i < sizeX * sizeY; ++i)
@@ -439,7 +447,7 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Mat<Type, SizeT> &mat
 }
 
 template <typename Type, SizeType SizeT>
-inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(const Type &value) noexcept
+inline Mat<Type, SizeT> Mat<Type, SizeT>::operator/=(copy_fast<Type> value) noexcept
 {
     for (size_t i = 0; i < sizeX * sizeY; ++i)
     {
