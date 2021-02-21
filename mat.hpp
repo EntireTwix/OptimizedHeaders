@@ -11,7 +11,7 @@ struct copy_fast : std::conditional<std::is_trivially_copyable_v<T>, T, const T 
 };
 
 template <typename T>
-using copy_fast_t = typename copy_fast_t<T>::type;
+using copy_fast_t = typename copy_fast<T>::type;
 
 template <typename T>
 concept SizeType = std::is_unsigned_v<T> &&std::is_integral_v<T>;
