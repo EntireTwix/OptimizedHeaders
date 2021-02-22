@@ -99,10 +99,11 @@ public:
 
     std::string Save() const noexcept
     {
+        using namespace std;
         std::string res('(' + std::to_string(sizeX) + ',' + std::to_string(sizeY) + ',');
         for (copy_fast_t<Type> i : *this)
         {
-            res += std::to_string(i) + ',';
+            res += to_string(i) + ',';
         }
         res.back() = ')';
         return res;
