@@ -57,6 +57,7 @@ public:
     SizeT SizeY() const noexcept;
 
     Mat Dot(const Mat &) const;
+    void Flatten();
 
     Mat operator+(const Mat &) const;
     Mat operator+(copy_fast_t<Type>) const noexcept;
@@ -272,6 +273,13 @@ inline Mat<Type, SizeT> Mat<Type, SizeT>::Dot(const Mat<Type, SizeT> &mat) const
         }
         return res;
     }
+}
+
+template <typename Type, SizeType SizeT>
+inline void Mat<Type, SizeT>::Flatten()
+{
+    sizeY *= sizeX;
+    sizeX = 0;
 }
 
 template <typename Type, SizeType SizeT>
