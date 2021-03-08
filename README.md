@@ -25,4 +25,3 @@ a small set of utility functions
 * CombineBits, variadically combines any arguments into an array of chars
 * File Reading, functions that parse files with simple delimenator formatting
 * Split, string splitting function for parsing
-* JSON I/O in the form of Save/Load for nlohmann/json repo
