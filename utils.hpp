@@ -54,6 +54,8 @@ inline std::vector<std::string> ReadFileSimple(const std::string &file, char del
     }
     return res;
 }
+
+//string Split
 inline std::vector<std::string> Split(const std::string &inp, char delim)
 {
     std::stringstream ss(inp);
