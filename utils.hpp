@@ -4,6 +4,17 @@
 template <auto ret>
 constexpr auto ConfirmConstexpr() { return ret; }
 
+//CopyFast metaprogramming type
+template <typename T>
+struct copy_fast : std::conditional<std::is_trivially_copyable_v<T>, T, const T &> {};
+template <typename T>
+using copy_fast_t = typename copy_fast<T>::type;
+
+//CombineBits
+template <typename T>
+unsigned char* CombineBits(T val) { return val; }
+template <typename T, typename... Bits>
+unsigned char* CombineBits(T head, Bits... vars) { return (head << sizeof(T)) + CombineBits(vars...); }
 
 /* nlohmann/json I/O 
 
@@ -82,9 +93,3 @@ bool Save(const std::string &location, const T &dest)
 }
 
 */
-
-//CopyFast metaprogramming type
-template <typename T>
-struct copy_fast : std::conditional<std::is_trivially_copyable_v<T>, T, const T &> {};
-template <typename T>
-using copy_fast_t = typename copy_fast<T>::type;
