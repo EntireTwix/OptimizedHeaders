@@ -1,4 +1,5 @@
 #pragma once
+#include <type_traits>
 
 //consteval for non-C++20
 template <auto ret>
