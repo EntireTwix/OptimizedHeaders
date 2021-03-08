@@ -53,15 +53,18 @@ bool Load(const std::string& location, std::vector<T>& dest)
 {
     std::ifstream input(location);
     json temp;
-    std::string temp_str;
+    std::string temp_str, final_str
     if (input.is_open())
     {
-        input >> temp_str;
+        while (input >> temp_str)
+        {
+            final_str += temp_str;
+        }
         if (temp_str == "")
         {
             return false;
         }
-        temp = json::parse(temp_str);
+        temp = json::parse(final_str);
         input.close();
     }
     else
