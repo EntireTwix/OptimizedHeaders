@@ -21,6 +21,7 @@ inline unsigned char* CombineBits(T val) { return val; }
 template <typename T, typename... Bits>
 inline unsigned char* CombineBits(T head, Bits... vars) { return (head << sizeof(T)) + CombineBits(vars...); }
 
+//File I/O
 inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim)
 {
     std::ifstream temp(file);
@@ -36,8 +37,6 @@ inline std::vector<std::string> ReadFileSimple(const std::string &file, char del
     }
     return res;
 }
-
-//File I/O
 template <typename T>
 inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim, const T &func)
 {
@@ -55,7 +54,6 @@ inline std::vector<std::string> ReadFileSimple(const std::string &file, char del
     }
     return res;
 }
-
 inline std::vector<std::string> Split(const std::string &inp, char delim)
 {
     std::stringstream ss(inp);
@@ -67,7 +65,6 @@ inline std::vector<std::string> Split(const std::string &inp, char delim)
     }
     return res;
 }
-
 template <typename T>
 inline std::vector<std::string> Split(const std::string &inp, char delim, const T &func)
 {
