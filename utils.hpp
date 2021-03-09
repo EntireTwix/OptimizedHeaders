@@ -38,7 +38,7 @@ inline std::vector<std::string> ReadFileSimple(const std::string &file, char del
     return res;
 }
 template <typename T>
-inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim, const T &func)
+inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim, T &&func)
 {
     std::ifstream temp(file);
     std::vector<std::string> res;
@@ -68,7 +68,7 @@ inline std::vector<std::string> Split(const std::string &inp, char delim)
     return res;
 }
 template <typename T>
-inline std::vector<std::string> Split(const std::string &inp, char delim, const T &func)
+inline std::vector<std::string> Split(const std::string &inp, char delim, T &&func)
 {
     std::stringstream ss(inp);
     std::vector<std::string> res;
