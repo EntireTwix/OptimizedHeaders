@@ -17,9 +17,9 @@ using copy_fast_t = typename copy_fast<T>::type;
 
 //CombineBits
 template <typename T>
-inline unsigned char* CombineBits(T val) { return val; }
+constexpr unsigned char* CombineBits(T val) { return val; }
 template <typename T, typename... Bits>
-inline unsigned char* CombineBits(T head, Bits... vars) { return (head << (sizeof(T)*8)) + CombineBits(vars...); }
+constexpr unsigned char* CombineBits(T head, Bits... vars) { return (head << (sizeof(T)*8)) + CombineBits(vars...); }
 
 //File I/O
 inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim)
