@@ -8,7 +8,7 @@ template <uint_fast8_t threads = 0, size_t queueSize = 512>
 class ThreadPool final
 {
 private:
-    bool stopped = false, paused = true;
+    volatile bool stopped = false, paused = true;
 
     atomic_queue::AtomicQueue2<std::function<void()>, queueSize> jobs;
     std::thread *workers; //threads
