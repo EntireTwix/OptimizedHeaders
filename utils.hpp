@@ -1,8 +1,4 @@
 #pragma once
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <vector>
 #include <type_traits>
 
 //consteval for non-C++20
@@ -20,63 +16,3 @@ template <typename T>
 constexpr unsigned char* CombineBits(T val) { return val; }
 template <typename T, typename... Bits>
 constexpr unsigned char* CombineBits(T head, Bits... vars) { return (head << (sizeof(T)*8)) + CombineBits(vars...); }
-
-//File I/O
-inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim)
-{
-    std::ifstream temp(file);
-    std::vector<std::string> res;
-    std::string line;
-    if (temp.is_open())
-    {
-        while (std::getline(temp, line, delim))
-        {
-            res.push_back(line);
-        }
-        temp.close();
-    }
-    return res;
-}
-template <typename T>
-inline std::vector<std::string> ReadFileSimple(const std::string &file, char delim, T &&func)
-{
-    std::ifstream temp(file);
-    std::vector<std::string> res;
-    std::string line;
-    if (temp.is_open())
-    {
-        while (std::getline(temp, line, delim))
-        {
-            func(line);
-            res.push_back(line);
-        }
-        temp.close();
-    }
-    return res;
-}
-
-//string Split
-inline std::vector<std::string> Split(const std::string &inp, char delim)
-{
-    std::stringstream ss(inp);
-    std::vector<std::string> res;
-    std::string line;
-    while (std::getline(ss, line, delim))
-    {
-        res.push_back(line);
-    }
-    return res;
-}
-template <typename T>
-inline std::vector<std::string> Split(const std::string &inp, char delim, T &&func)
-{
-    std::stringstream ss(inp);
-    std::vector<std::string> res;
-    std::string line;
-    while (std::getline(ss, line, delim))
-    {
-        func(line);
-        res.push_back(line);
-    }
-    return res;
-}
