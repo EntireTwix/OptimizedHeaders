@@ -23,5 +23,3 @@ a small set of utility functions
 * ConfirmContexpr (consteval for versions less then C++20)
 * CopyFast, a meta-function parameter that passes as const refference or copy based on whats fastest for way to pass as value for that type
 * CombineBits, variadically combines any arguments into an array of chars
-* File Reading, functions that parse files with simple delimenator formatting
-* Split, string splitting function for parsing
