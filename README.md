@@ -15,7 +15,7 @@ a lightweight LOCKING thread pool, with INDIVIDUAL QUEUES per thread. It works b
 
 stpool.hpp
 -----
-a lightweight LOCK-FREE SHARED QUEUE thread pool, utilizing atomic_queue.h from user from https://github.com/max0x7ba. This thread pool is faster then tpool.h if the distribution of work is nonuniform, otherwise its on average 20-40% slower (for synthetic workloads).
+a lightweight LOCK-FREE SHARED QUEUE thread pool, utilizing atomic_queue.h from user from https://github.com/max0x7ba/atomic_queue. This thread pool is faster then tpool.h if the distribution of work is nonuniform, otherwise its on average 20-40% slower (for synthetic workloads).
 
 utils.hpp
 -----
