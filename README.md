@@ -11,11 +11,11 @@ HEAP based matrix data structure, it is widely applicable to many usecases
 
 tpool.hpp
 -----
-a lightweight LOCKING thread pool, with INDIVIDUAL QUEUES per thread. It works best with synthetic/well distributed workloads. Extremely Fast
+a simple LOCKING thread pool, with INDIVIDUAL QUEUES per thread. It works best with synthetic/well distributed workloads. Extremely Fast
 
 stpool.hpp
 -----
-a lightweight LOCK-FREE SHARED QUEUE thread pool, utilizing atomic_queue.h from user from https://github.com/max0x7ba/atomic_queue. This thread pool is faster then tpool.h if the distribution of work is nonuniform, otherwise its on average 20-40% slower (for synthetic workloads).
+a simple LOCK-FREE SHARED QUEUE thread pool, utilizing atomic_queue.h from user from https://github.com/max0x7ba/atomic_queue. This thread pool is faster then tpool.h if the distribution of work is nonuniform, otherwise its on average 20-40% slower (for synthetic workloads).
 
 utils.hpp
 -----
