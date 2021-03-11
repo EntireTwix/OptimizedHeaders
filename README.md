@@ -15,7 +15,7 @@ a simple LOCKING thread pool, with INDIVIDUAL QUEUES per thread. It works best w
 
 stpool.hpp
 -----
-a simple LOCK-FREE SHARED QUEUE thread pool, utilizing atomic_queue.h from user from https://github.com/max0x7ba/atomic_queue. This thread pool is faster then tpool.h if the distribution of work is nonuniform, otherwise its on average 20-40% slower (for synthetic workloads).
+a simple LOCK-FREE SHARED QUEUE thread pool, utilizing atomic_queue.h from user from https://github.com/max0x7ba/atomic_queue. This thread pool is probably faster then tpool.h if the distribution of work is nonuniform, otherwise its on average 20-40% slower (for synthetic workloads).
 
 utils.hpp
 -----
