@@ -169,10 +169,6 @@ public:
     }
 };
 
-#include <chrono>
-
-using namespace std::chrono;
-
 template <typename ForwardIt, typename UnaryFunction, uint_fast8_t threads>
 void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPool<threads> &engine)
 {
