@@ -184,22 +184,17 @@ void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPoo
     }
     else
     {
-        uint_fast8_t remainder = (last - first) % engine.Workers();
         for (ForwardIt i = first; i < last; i += step_sz)
         {
-            if (remainder--)
-            {
-                engine.AddTask([i, step_sz, &f]() {
-                    std::for_each(i, i + step_sz + 1, f);
-                });
-                ++i;
-            }
-            else
-            {
-                engine.AddTask([i, step_sz, &f]() {
-                    std::for_each(i, i + step_sz, f);
-                });
-            }
+            engine.AddTask([i, step_sz, &f]() {
+                std::for_each(i, i + step_sz, f);
+            });
+        }
+        if ((last - first) % engine.Workers())
+        {
+            engine.AddTask([last, &f]() {
+                f(*last);
+            });
         }
     }
     engine.Start();
