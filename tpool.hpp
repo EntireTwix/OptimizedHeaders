@@ -187,9 +187,18 @@ void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPoo
         step_sz += (bool)((last - first) % engine.Workers()); //branchless correction for remainder in step size
         for (ForwardIt i = first; i < last; i += step_sz)
         {
-            engine.AddTask([i, &step_sz, &f]() {
-                std::for_each(i, i + step_sz, f);
-            });
+            if (!((i + step_sz) > last))
+            {
+                engine.AddTask([i, &step_sz, &f]() {
+                    std::for_each(i, i + step_sz, f);
+                });
+            }
+            else
+            {
+                engine.AddTask([i, &step_sz, &f]() {
+                    std::for_each(i, last, f);
+                });
+            }
         }
     }
     engine.Start();
