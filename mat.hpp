@@ -83,7 +83,7 @@ public:
     Type *end() noexcept { return &members[sizeX * sizeY]; }
     const Type *begin() const noexcept { return &members[0]; }
     const Type *end() const noexcept { return &members[sizeX * sizeY]; }
-    Type *&data() noexcept { return members; } //dangerous
+    Type *data() noexcept { return members; } //dangerous
 
     friend std::ostream &operator<<(std::ostream &os, const Mat &mat) noexcept
     {
