@@ -7,7 +7,7 @@ private:
     T members[H][W];
 
 public:
-    FastMat() noexcept = default;
+    constexpr FastMat() noexcept = default;
     constexpr explicit FastMat(T &&head, auto &&...args) : members{head, args...} { static_assert(sizeof...(args) + 1 == W * H, "initilizing FastMat with an initilizer list much match the Area in size"); }
 
     constexpr size_t Area() const noexcept { return W * H; }
