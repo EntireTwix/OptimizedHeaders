@@ -169,6 +169,10 @@ public:
     }
 };
 
+#include <chrono>
+
+using namespace std::chrono;
+
 template <typename ForwardIt, typename UnaryFunction, uint_fast8_t threads>
 void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPool<threads> &engine)
 {
@@ -184,19 +188,20 @@ void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPoo
     }
     else
     {
-        step_sz += (bool)((last - first) % engine.Workers()); //branchless correction for remainder in step size
+        uint_fast8_t remainder = (last - first) % engine.Workers();
         for (ForwardIt i = first; i < last; i += step_sz)
         {
-            if (!((i + step_sz) > last))
+            if (remainder--)
             {
-                engine.AddTask([i, &step_sz, &f]() {
-                    std::for_each(i, i + step_sz, f);
+                engine.AddTask([i, step_sz, &f]() {
+                    std::for_each(i, i + step_sz + 1, f);
                 });
+                ++i;
             }
             else
             {
-                engine.AddTask([i, &last, &f]() {
-                    std::for_each(i, last, f);
+                engine.AddTask([i, step_sz, &f]() {
+                    std::for_each(i, i + step_sz, f);
                 });
             }
         }
