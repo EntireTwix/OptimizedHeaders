@@ -12,7 +12,7 @@ template <typename T>
 using copy_fast_t = typename copy_fast<T>::type;
 
 //CombineBits
-template <typename T>
-constexpr unsigned char* CombineBits(T val) { return val; }
+template <typename T, typename T2>
+constexpr auto CombineBits(T a, T2 b) { return a ^ b << ((sizeof(T) * 8) - 1); }
 template <typename T, typename... Bits>
-constexpr unsigned char* CombineBits(T head, Bits... vars) { return (head << (sizeof(T)*8)) + CombineBits(vars...); }
+constexpr auto CombineBits(T head, Bits... bits) { return CombineBits(bits...) << ((sizeof(T) * 8) - 1) ^ head; }
