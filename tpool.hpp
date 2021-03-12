@@ -43,38 +43,38 @@ public:
                 {
                     {
                         std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //grab ownership
-                        //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
-                        //std::cout << "Thread " + std::to_string(i) + " is waiting for new job\n";
+                        //std::cout << std::to_string(i) + " has grabbed ownership of its lock\n";
                         if (jobs[i].empty() && !stopped) //wait for new jobs
                         {
+                            //std::cout << std::to_string(i) + " is waiting\n";
                             jobListener[i].wait(jobsAccess, [this, i]() { return !jobs[i].empty() || stopped; });
-                            if (!jobs[i].empty())
-                            {
-                                //std::cout << "Thread " + std::to_string(i) + " is setting up a job\n";
-                                job = std::move(jobs[i].front()); //set up new job
-                            }
                         }
-                        //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
+                        if (!jobs[i].empty())
+                        {
+                            //std::cout << std::to_string(i) + " is setting up a job\n";
+                            job = std::move(jobs[i].front()); //set up new job
+                        }
+                        //std::cout << std::to_string(i) + " giving up ownership of its lock\n\n";
                     }
-
                     //wait while paused
                     while (paused && !stopped)
-                        ;
-
-                    if (!stopped)
                     {
-                        //std::cout << "Thread " + std::to_string(i) + " has grabbed ownership of its lock\n";
-                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //grab ownership
-                        if (!paused && !stopped)                                 //thread shouldnt continue to work if going out of scope
-                        {
-                            //std::cout << "Thread " + std::to_string(i) + " has begon working\n";
-                            job(); //do work
-                            //std::cout << "Thread " + std::to_string(i) + " has stopped working\n";
+                        //std::to_string(i) + " is paused\n";
+                    }
 
-                            jobs[i].pop(); //pop job because its done
-                            //std::cout << "Thread " + std::to_string(i) + " has popped its job\n";
-                        }
-                        //std::cout << "Thread " + std::to_string(i) + " giving up ownership of its lock\n\n";
+                    if (!stopped && !paused && job)
+                    {
+                        //std::cout << std::to_string(i) + " has grabbed ownership of its lock\n";
+                        std::unique_lock<std::mutex> jobsAccess{threadLocks[i]}; //grab ownership
+
+                        //std::cout << std::to_string(i) + " has begon working\n";
+                        job(); //do work
+                        //std::cout << std::to_string(i) + " has stopped working\n";
+
+                        jobs[i].pop(); //pop job because its done
+                        //std::cout << std::to_string(i) + " has popped its job\n";
+
+                        //std::cout << std::to_string(i) + " giving up ownership of its lock\n\n";
                     }
                 }
             });
@@ -84,10 +84,10 @@ public:
     {
         //finding worker with least jobs
         size_t smallest = -1;
-        uint_fast8_t index;
+        uint_fast8_t index = 0;
         for (uint_fast8_t i = 0; i < threadCount; ++i)
         {
-            //std::cout << "AddTask has grabbed lock of Thread " + std::to_string(i) + '\n';
+            ////std::cout << "AddTask has grabbed lock of Thread " + std::to_string(i) + '\n';
             std::unique_lock<std::mutex> jobsAccess{threadLocks[i]};
             if (jobs[i].size() < smallest)
             {
@@ -156,7 +156,7 @@ public:
     {
         Stop();
         //closing threads properly
-        //std::cout << "Deconstructing\n";
+        ////std::cout << "Deconstructing\n";
         for (size_t i = 0; i < threadCount; ++i)
         {
             if (workers[i].joinable())
@@ -184,16 +184,16 @@ void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPoo
     }
     else
     {
-        for (ForwardIt i = first; i < last; i += step_sz)
+        if ((last - first) % engine.Workers())
+        {
+            engine.AddTask([first, step_sz, &f]() {
+                std::for_each(first, first + step_sz + 1, f);
+            });
+        }
+        for (ForwardIt i = first + step_sz + 1; i < last; i += step_sz)
         {
             engine.AddTask([i, step_sz, &f]() {
                 std::for_each(i, i + step_sz, f);
-            });
-        }
-        if ((last - first) % engine.Workers())
-        {
-            engine.AddTask([last, &f]() {
-                f(*last);
             });
         }
     }
