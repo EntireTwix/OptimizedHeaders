@@ -3,7 +3,7 @@ a repo with a goal of well optimized header files. While I put attention towards
 
 fast_mat.hpp
 -----
-STACK based matrix data structure, some functions are constexpr which is benificial when applicable
+STACK based matrix data structure, all constexpr
 
 mat.hpp
 -----
