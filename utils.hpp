@@ -12,3 +12,5 @@ template <typename T>
 using copy_fast_t = typename copy_fast<T>::type;
 
 #define INLINE __attribute__((always_inline)) inline
+
+#define INDEX(v, i) v &(1 << i);
