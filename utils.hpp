@@ -17,3 +17,12 @@ using copy_fast_t = typename copy_fast<T>::type;
 #define SET(v, i) v ^= (1 << i)
 #define ON(v, i) v |= (1 << i)
 #define OFF(v, i) v &= ~(1 << i)
+
+INLINE uint32_t log2_i(const uint32_t x)
+{
+  uint32_t y;
+  asm("\tbsr %1, %0\n"
+  : "=r"(y)
+  : "r"(x));
+  return y;
+}
