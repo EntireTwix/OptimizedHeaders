@@ -190,15 +190,13 @@ void asyncfor_each(ForwardIt first, ForwardIt last, UnaryFunction &&f, ThreadPoo
                 std::for_each(first, first + step_sz + 1, f);
             });
         }
-        else
-        {
             for (ForwardIt i = first + step_sz + 1; i < last; i += step_sz)
             {
                 engine.AddTask([i, step_sz, &f]() {
                     std::for_each(i, i + step_sz, f);
                 });
             }
-        }
+        
     }
     engine.Start();
     while (engine.Working())
