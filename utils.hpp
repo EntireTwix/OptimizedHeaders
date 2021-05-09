@@ -22,7 +22,7 @@ using copy_fast_cv_t = typename copy_fast_cv<T>::type;
 #include <ctime>
 #include <ratio>
 #include <chrono>
-#define time(f)                                                            \
+#define time_func(f)                                                            \
     {using namespace std::chrono;                                           \
     high_resolution_clock::time_point t1 = high_resolution_clock::now();   \
     f;                                                                     \
