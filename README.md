@@ -1,4 +1,4 @@
-# OptimizedHeaders
+# OptimizedHeaders (LEGACY)
 a repo with a goal of well optimized header files. While I put attention towards optimization by default, this repo is for header files that are explicitly performance focused
 
 fast_mat.hpp
