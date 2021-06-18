@@ -1,15 +1,15 @@
-# OptimizedHeaders (LEGACY)
+# OptimizedHeaders
 a repo with a goal of well optimized header files. While I put attention towards optimization by default, this repo is for header files that are explicitly performance focused
 
-fast_mat.hpp
+fast_mat.hpp (LEGACY)
 -----
 STACK based matrix data structure, all constexpr
 
-mat.hpp
+mat.hpp (LEGACY)
 -----
 HEAP based matrix data structure, it is widely applicable to many usecases
 
-tpool.hpp
+tpool.hpp (LEGACY)
 -----
 a simple LOCKING thread pool, with INDIVIDUAL QUEUES per thread. It works best with synthetic/well distributed workloads. Extremely Fast
 
