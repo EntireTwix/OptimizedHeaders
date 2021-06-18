@@ -22,10 +22,23 @@ using copy_fast_cv_t = typename copy_fast_cv<T>::type;
 #include <ctime>
 #include <ratio>
 #include <chrono>
-#define time_func(f)                                                            \
-    {using namespace std::chrono;                                           \
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();   \
-    f;                                                                     \
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();   \
-    duration<double> time_span = duration_cast<duration<double>>(t2 - t1); \
-    std::cout << "It took me " << time_span.count() << " seconds.\n";}
+
+#define time_func(f, x)                                                                          \
+    {                                                                                         \
+        using namespace std::chrono;                                                          \
+        uint32_t timer = 0;                                                                   \
+        for (int i = 0; i < x; ++i)                                                    \
+        {                                                                                     \
+            auto t1 = high_resolution_clock::now().time_since_epoch();                        \
+            f;                                                                                \
+            auto t2 = high_resolution_clock::now().time_since_epoch();                        \
+            timer += std::chrono::duration_cast<std::chrono::nanoseconds>((t2 - t1)).count(); \
+        }                                                                                     \
+        std::cout << timer / x << '\n';                                                \
+    }
+
+#define Op(v, name)        \
+    {                      \
+        std::cout << name; \
+        time_func(v);      \
+    }
