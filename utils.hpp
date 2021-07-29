@@ -13,6 +13,8 @@ struct copy_fast_cv : copy_fast<std::remove_cv_t<std::remove_reference_t<T>>>{};
 template <typename T>
 using copy_fast_cv_t = typename copy_fast_cv<T>::type;
 
+#define HAS_(member, member_type, name) template <typename T, typename = member_type> struct name : std::false_type { }; template <typename T> struct name <T, decltype((void) T::member, 0)> : std::true_type { };
+
 #define INLINE __attribute__((always_inline)) inline
 
 #define GET(v, i) v &(1 << i)
