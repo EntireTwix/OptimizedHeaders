@@ -19,9 +19,50 @@ struct copy_fast_cv : copy_fast<std::remove_cv_t<std::remove_reference_t<T>>>{};
 template <typename T>
 using copy_fast_cv_t = typename copy_fast_cv<T>::type;
 
-#define HAS_(member, member_type, name) template <typename T, typename = member_type> struct name : std::false_type { }; template <typename T> struct name <T, decltype((void) T::member, 0)> : std::true_type { };
+#define HAS_(member, member_type)                                         \
+    template <typename T, typename = member_type>                         \
+    struct has_##member : std::false_type                                 \
+    {                                                                     \
+    };                                                                    \
+    template <typename T>                                                 \
+    struct has_##member<T, decltype((void)T::member, 0)> : std::true_type \
+    {                                                                     \
+    };    
 
-#define INLINE __attribute__((always_inline)) inline
+#define HAS_FUNC_(func_name)                                                                                                                  \
+    template <typename, typename T>                                                                                                           \
+    struct has_##func_name                                                                                                                    \
+    {                                                                                                                                         \
+        static_assert(std::integral_constant<T, false>::value, "Second template parameter needs to be of function type.");                    \
+    };                                                                                                                                        \
+    template <typename C, typename Ret, typename... Args>                                                                                     \
+    struct has_##func_name<C, Ret(Args...)>                                                                                                   \
+    {                                                                                                                                         \
+    private:                                                                                                                                  \
+        template <typename T>                                                                                                                 \
+        static constexpr auto check(T *) -> typename std::is_same<decltype(std::declval<T>().func_name(std::declval<Args>()...)), Ret>::type; \
+        template <typename>                                                                                                                   \
+        static constexpr std::false_type check(...);                                                                                          \
+        typedef decltype(check<C>(0)) type;                                                                                                   \
+    public:                                                                                                                                   \
+        static constexpr bool value = type::value;                                                                                            \
+    } 
+
+#define HAS_STATIC_FUNC(static_method_name)                                                                                             \
+    template <typename, typename T>                                                                                                     \
+    struct has_##static_method_name                                                                                                     \
+    {                                                                                                                                   \
+        static_assert(std::integral_constant<T, false>::value, "Second template parameter needs to be of function type.");              \
+    };                                                                                                                                  \
+    template <typename C, typename Ret, typename... Args>                                                                               \
+    struct has_##static_method_name<C, Ret(Args...)>                                                                                    \
+    {                                                                                                                                   \
+        template <typename T>                                                                                                           \
+        static constexpr auto check(T *) -> typename std::is_same<decltype(T::static_method_name(std::declval<Args>()...)), Ret>::type; \
+        template <typename>                                                                                                             \
+        static constexpr std::false_type check(...);                                                                                    \
+        static constexpr bool value = decltype(check<C>(nullptr))::value;                                                               \
+    };
 
 #define GET(v, i) v &(1 << i)
 #define SET(v, i) v ^= (1 << i)
