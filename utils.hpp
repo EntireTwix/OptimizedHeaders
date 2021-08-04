@@ -1,6 +1,12 @@
 #pragma once
 #include <type_traits>
 
+#ifdef _MSC_VER
+#define ALWAYS_INLINE __forceinline
+#else
+#define ALWAYS_INLINE inline __attribute((__always_inline__))
+#endif
+
 //consteval for non-C++20
 template <auto ret>
 constexpr auto ConfirmConstexpr() { return ret; }
