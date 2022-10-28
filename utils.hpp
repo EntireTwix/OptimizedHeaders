@@ -114,3 +114,5 @@ using copy_fast_t = typename copy_fast<T>::type;
 
 template <typename T>
 constexpr T pow2(copy_fast_t<T> val) { return val * val; }
+
+constexpr size_t length(const char* str) { return *str ? 1 + length(str + 1) : 0; }
