@@ -11,11 +11,15 @@
 template <auto ret>
 constexpr auto ConfirmConstexpr() { return ret; }
 
-//CopyFast metaprogramming type
+//copy_fast type metafunction
 template <typename T>
 struct copy_fast : std::conditional<std::is_trivially_copyable_v<T>, T, const T &>{};
 template <typename T>
 using copy_fast_t = typename copy_fast<T>::type;
+
+//implies value metafunction
+template <bool A, bool B>
+constexpr bool implies_v = !(A && !B);
 
 #define HAS_(member, member_type)                                         \
     template <typename T, typename = member_type>                         \
