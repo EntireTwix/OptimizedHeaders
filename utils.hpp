@@ -7,6 +7,13 @@
 #define ALWAYS_INLINE inline __attribute((__always_inline__))
 #endif
 
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
 //consteval for non-C++20
 template <auto ret>
 constexpr auto ConfirmConstexpr() { return ret; }
